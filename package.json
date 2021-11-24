@@ -1,0 +1,17 @@
+{
+  "name": "babble-drachtio-fifo",
+  "version": "1.0.0",
+  "description": "A call queue (fifo)",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha --recursive --check-leaks",
+    "docs": "jsdoc -c jsdoc.conf.json"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chai": "^4.3.4",
+    "drachtio-srf": "^4.4.59",
+    "mocha": "^9.1.3"
+  }
+}
