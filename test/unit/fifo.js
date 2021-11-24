@@ -32,7 +32,7 @@ describe( "fifo.js", function() {
     expect( f._callcount ).to.equal( 1 )
 
     expect( f._calls.has( call.uuid ) ).to.be.true
-debugger
+
     call._em.emit( "call.hangup", call )
 
     expect( f._fifos[ 4 ] ).to.be.a( "array" ).to.have.lengthOf( 0 )
