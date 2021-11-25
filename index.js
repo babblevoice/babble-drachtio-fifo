@@ -53,6 +53,18 @@ class fifos {
   }
 
   /**
+  Sets the members of a queue
+  @param { object } options
+  @param { string } options.name - the name of the queue
+  @param { string } options.domain - the domain for the queue
+  @param { string } options.agent - agent i.e. "1000@dummy.com"
+  */
+  agent( options ) {
+    let d = this._getdomain( options.domain )
+    if( d ) d.agent( options )
+  }
+
+  /**
   Create or return a domain object containing a domains fifos.
   @private
   @param { string } domainname
