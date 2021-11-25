@@ -40,6 +40,14 @@ class dialog {
   static create() {
     return new dialog()
   }
+
+  static stats() {
+    return { dialogcount }
+  }
+
+  static reset() {
+    dialogcount = 0
+  }
 }
 
 module.exports = dialog
