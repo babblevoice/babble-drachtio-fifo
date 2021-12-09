@@ -46,12 +46,11 @@ describe( "interface fifo.js", function() {
 
     call._em.emit( "call.hangup", call )
 
-    let reason
-    await waiting
-      .catch( ( e ) => {
-        reason = e
-      } )
+    let reason = await waiting
 
+    expect( call.vars.fifo.epochs.enter ).to.be.a( "number" ).to.be.above( 0 )
+    expect( call.vars.fifo.epochs.leave ).to.be.a( "number" ).to.be.above( 0 )
+    expect( call.vars.fifo.state ).to.equal( "abandoned" )
     expect( reason ).to.equal( "abandoned" )
   } )
 
@@ -78,30 +77,34 @@ describe( "interface fifo.js", function() {
     options.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     options.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
 
-    f.agents( {
-      "agents": [ "1000@dummy.com", "1001@dummy.com" ]
-    } )
+    f.agents( [ "1000@dummy.com", "1001@dummy.com" ] )
+
+    let newcallcount = 0
 
     /* mocks */
     let call = {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
-      "vars": {}
+      "vars": {},
+      "newuac": ( options, callbacks ) => {
+        newcallcount++
+        callbacks.early( {} )
+        setTimeout( ()=> {
+          callbacks.fail( {} )
+        }, options.uactimeout )
+      }
     }
 
-    let reason
-    await f.queue( { call, "timeout": 1 } )
-      .catch( ( e ) => {
-        reason = e
-      } )
-
+    let reason = await f.queue( { call, "timeout": 1 } )
     /*
       2 agents with 20mS per call (10 ringing 10 lag) in a 1S test
       (1000x2)/20 = 100
       include a good margin of error for timing errors
     */
-    expect( options.srf.createduacs.length ).to.be.within( 90, 110 )
+    expect( call.vars.fifo.epochs.leave - call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
+    expect( call.vars.fifo.state ).to.equal( "timeout" )
+    expect( newcallcount ).to.be.within( 90, 110 )
     expect( reason ).to.equal( "timeout" )
   } )
 } )
