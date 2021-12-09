@@ -30,9 +30,7 @@ describe( "interface fifo.js", function() {
     options.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     options.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
 
-    f.agents( {
-      "agents": [ "1000@dummy.com", "1001@dummy.com" ]
-    } )
+    f.agents( [ "1000@dummy.com", "1001@dummy.com" ] )
 
     /* mocks */
     let call = {
