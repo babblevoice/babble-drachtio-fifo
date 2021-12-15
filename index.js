@@ -1,4 +1,7 @@
 
+const events = require( "events" )
+const assert = require('assert').strict
+
 const domain = require( "./lib/domain.js" )
 
 /**
@@ -8,20 +11,110 @@ class fifos {
 
   /**
   @param { object } options
-  @param { object } options.em - event emmitter
-  @param { object } srf.srf - srf object
+  @param { object } options.srf - srf object
+  @param { object } [ options.em ] - event emmitter
+  @param { number } [ options.agentlag = 30000 ] - duration after last call to retry next new call (mS)
   */
   constructor( options ) {
+
+    assert( !options.srf, "You must supply an srf object" )
 
     /**
     @private
     */
     this._options = options
 
+    if( !this.options.em ) {
+      this.options.em = new events.EventEmitter()
+    }
+
+    this.options.em.on( "call.destroyed", this._onentitymightbefree.bind( this ) )
+    this.options.em.on( "register", this._onentitymightbeavailable.bind( this ) )
+
+    this.options.em.on( "unregister", this._onentitymightbeunavailable.bind( this ) )
+    this.options.em.on( "call.new", this._onentitybusy.bind( this ) )
+    this.options.em.on( "call.authed", this._onentitybusy.bind( this ) )
+
     /**
     @private
     */
     this._domains = new Map()
+
+    /**
+    Each agent has the structure
+    {
+      "uri": "1000@dummy.com",
+      "fifos": Set(),
+      "state": "busy" - "busy|ringing|resting|available",
+      "callcount": 0
+    }
+    The key is the uri
+    @private
+    */
+    this._allagents = new Map()
+
+    /**
+    @private
+    */
+    this._agentlag = 30000
+    if( options && options.agentlag ) this._agentlag = options.agentlag
+  }
+
+  /**
+  Trigger a call from the next most important queue (based on oldest next)
+  */
+  _callagents( agentinfo ) {
+    let orderedfifos = Array.from( agentinfo.fifos )
+
+    /* oldest first */
+    orderedfifos.sort( ( a, b ) => { return b.age - a.age } )
+    orderedfifos[ 0 ]._callagents()
+  }
+
+  /**
+  Called by callmanager event emitter
+  @param { call } call - our call object
+  @private 
+  */
+  async _onentitymightbefree( call ) {
+    let entity = await call.entity
+    if( entity && 0 === entity.ccc ) {
+      /* We know who it is and they have no other calls */
+      if( this._allagents.has( entity.uri ) ) {
+        let agent = this._allagents.get( entity.uri )
+        if( "busy" === agent.state ) {
+          agent.state = "resting"
+          setTimeout( () => {
+            agent.state = "available"
+            this._callagents( agent )
+          }, this._agentlag )
+        }
+      }
+    }
+  }
+
+  async _onentitymightbeavailable( reginfo ) {
+    if( this._allagents.has( reginfo.auth.uri ) ) {
+    }
+  }
+
+  async _onentitymightbeunavailable( reginfo ) {
+    if( this._allagents.has( reginfo.auth.uri ) ) {
+    }
+  }
+
+  /**
+  Called by callmanager event emitter
+  @param { call } call - our call object
+  @private 
+  */
+  async _onentitybusy( call ) {
+    let entity = await call.entity
+    if( entity && entity.ccc > 0 ) {
+      if( this._allagents.has( entity.uri ) ) {
+        this._allagents.get( entity.uri ).state = "busy"
+      }
+    }
   }
 
   /**
@@ -47,9 +140,17 @@ class fifos {
   @param { string } options.domain - the domain for the queue
   @param { array.< string > } options.agents - array of agents i.e. [ "1000@dummy.com" ]
   */
-  agents( options ) {
+  addagents( options ) {
     let d = this._getdomain( options.domain )
     if( d ) d.agents( options )
+
+    for( let agent of options.agents ) {
+      this.addagent( {
+        "name": options.name,
+        "domain": options.domain,
+        agent
+      } )
+    }
   }
 
   /**
@@ -59,9 +160,30 @@ class fifos {
   @param { string } options.domain - the domain for the queue
   @param { string } options.agent - agent i.e. "1000@dummy.com"
   */
-  agent( options ) {
+  addagent( options ) {
+    if( !options.agent ) return
+
     let d = this._getdomain( options.domain )
-    if( d ) d.agent( options )
+
+    let ouragent
+
+    if( this._allagents.has( options.agent ) ) {
+      ouragent = this._allagents.get( options.agent )
+      d.addagent( options, ouragent )
+    } else {
+      ouragent = {
+        "uri": options.agent,
+        "fifos": new Set(),
+        "state": "available"
+      }
+
+      this._allagents.set( options.agent, ouragent )
+
+      if( !d.addagent( options, ouragent ) ) {
+        /* this shouldn't happen */
+        this._allagents.delete( options.agent )
+      }
+    }
   }
 
   /**
