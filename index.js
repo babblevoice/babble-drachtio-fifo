@@ -138,7 +138,7 @@ class fifos {
   @returns { Promise } - resolves when answered or fails.
   */
   queue( options ) {
-    let d = this._getdomain( options.domain )
+    let d = this.getdomain( options.domain )
     return d.queue( options )
   }
 
@@ -169,7 +169,7 @@ class fifos {
   addagent( options ) {
     if( !options || !options.agent ) return
 
-    let d = this._getdomain( options.domain )
+    let d = this.getdomain( options.domain )
 
     if( this._allagents.has( options.agent ) ) {
       let ouragent = this._allagents.get( options.agent )
@@ -206,7 +206,7 @@ class fifos {
       agents[ agent ] = true
     }
 
-    let d = this._getdomain( options.domain )
+    let d = this.getdomain( options.domain )
     let f = d.getfifo( options.name )
     let currentagents = f.agents
     for( let currentagent of currentagents ) {
@@ -240,7 +240,7 @@ class fifos {
   deleteagent( options ) {
     if( !options || !options.agent ) return
 
-    let d = this._getdomain( options.domain )
+    let d = this.getdomain( options.domain )
 
     if( this._allagents.has( options.agent ) ) {
       d.deleteagent( options )
@@ -253,11 +253,10 @@ class fifos {
 
   /**
   Create or return a domain object containing a domains fifos.
-  @private
   @param { string } domainname
   @return { domain }
   */
-  _getdomain( domainname ) {
+  getdomain( domainname ) {
 
     if( this._domains.has( domainname ) ) {
       return this._domains.get( domainname )
