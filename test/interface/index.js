@@ -185,4 +185,89 @@ describe( "interface index.js", function() {
     expect( mainfifo._allagents.size ).to.equal( 2 )
 
   } )
+
+  it( `main ringall queue 1 call`, async function() {
+
+    this.timeout( 2000 )
+    this.slow( 1500 )
+
+    /* create a global fifo object */
+    let globaloptions = {
+      "registrar": registrar.create(),
+      "srf": srf.create(),
+      "uactimeout": 10, /* mS */
+      "uacretrylag": 10, /* mS */
+      "agentlag": 10
+    }
+
+    let mainfifo = fifo.create( globaloptions )
+
+    mainfifo.agents( {
+      "domain": "dummy.com",
+      "name": "fifoname",
+      "agents": [ "1000@dummy.com", "1001@dummy.com" ]
+    } )
+
+    /* setup our mock interfaces */
+    globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
+    globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
+
+    class mockagentcall {
+      constructor( uri ) {
+        this.uri = uri
+        this._em = new events.EventEmitter()
+      }
+      get entity() {
+        return ( async () => {
+          return {
+            "uri": this.uri,
+            "ccc": 0 /* our tests ask this when we have finished */
+          }
+        } )()
+      }
+
+      on( ev, cb ) {
+        this._em.on( ev, cb )
+      }
+    }
+
+    let newcallcount = 0
+
+    function killcalls( callbacks, agentcall ) {
+      callbacks.early( agentcall )
+
+      setTimeout( () => {
+        /* these are emitted by callmanager - in this order */
+        agentcall._em.emit( "call.destroyed", agentcall )
+        globaloptions.em.emit( "call.destroyed", agentcall )
+        
+      }, globaloptions.uactimeout )
+    }
+
+    let mockinboundcall = {
+      "uuid": "1",
+      "_em": new events.EventEmitter(),
+      "on": ( e, cb ) => mockinboundcall._em.on( e, cb ),
+      "vars": {},
+      "newuac": function ( options, callbacks ) {
+        newcallcount++
+        killcalls( callbacks, new mockagentcall( options.entity.uri ) )
+      }
+    }
+
+    /* now back to our inbound call */
+    let reason = await mainfifo.queue( {
+      "call": mockinboundcall,
+      "name": "fifoname",
+      "domain": "dummy.com",
+      "mode": "ringall",
+      "timeout": 1
+    } )
+
+    expect( mockinboundcall.vars.fifo.epochs.leave - mockinboundcall.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
+    expect( mockinboundcall.vars.fifo.state ).to.equal( "timeout" )
+    expect( newcallcount ).to.be.within( 90, 110 )
+    expect( reason ).to.equal( "timeout" )
+
+  } )
 } )

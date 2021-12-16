@@ -64,12 +64,21 @@ class fifos {
   Trigger a call from the next most important queue (based on oldest next)
   */
   _callagents( agentinfo ) {
-    let orderedfifos = Array.from( agentinfo.fifos )
+    let unorderedfifos = Array.from( agentinfo.fifos )
+
+    let frontcalls = []
+    for( const fifo of unorderedfifos ) {
+      let nextcallforqueue = fifo._getnextcaller()
+      if( nextcallforqueue ) frontcalls.push( nextcallforqueue )
+    }
 
     /* oldest first */
-    orderedfifos.sort( ( a, b ) => { return b.age - a.age } )
-    orderedfifos[ 0 ]._callagents()
-  }
+    if( frontcalls.length > 1 )
+      frontcalls.sort( ( a, b ) => { return b.age - a.age } )
+
+    if( frontcalls.length > 0 )
+      frontcalls[ 0 ]._fifo._callagents()
+}
 
   /**
   Called by callmanager event emitter
@@ -82,7 +91,7 @@ class fifos {
       /* We know who it is and they have no other calls */
       if( this._allagents.has( entity.uri ) ) {
         let agent = this._allagents.get( entity.uri )
-        if( "busy" === agent.state ) {
+        if( "ringing" === agent.state || "busy" === agent.state ) {
           agent.state = "resting"
           setTimeout( () => {
             agent.state = "available"
@@ -169,7 +178,8 @@ class fifos {
       let ouragent = {
         "uri": options.agent,
         "fifos": new Set(),
-        "state": "available"
+        "state": "available",
+        "callcount": 0
       }
 
       this._allagents.set( options.agent, ouragent )
