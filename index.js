@@ -1,6 +1,6 @@
 
 const events = require( "events" )
-const assert = require('assert').strict
+const assert = require( "assert" ).strict
 
 const domain = require( "./lib/domain.js" )
 
@@ -17,23 +17,23 @@ class fifos {
   */
   constructor( options ) {
 
-    assert( !options.srf, "You must supply an srf object" )
+    assert( options.srf, "You must supply an srf object" )
 
     /**
     @private
     */
     this._options = options
 
-    if( !this.options.em ) {
-      this.options.em = new events.EventEmitter()
+    if( !this._options.em ) {
+      this._options.em = new events.EventEmitter()
     }
 
-    this.options.em.on( "call.destroyed", this._onentitymightbefree.bind( this ) )
-    this.options.em.on( "register", this._onentitymightbeavailable.bind( this ) )
+    this._options.em.on( "call.destroyed", this._onentitymightbefree.bind( this ) )
+    this._options.em.on( "register", this._onentitymightbeavailable.bind( this ) )
 
-    this.options.em.on( "unregister", this._onentitymightbeunavailable.bind( this ) )
-    this.options.em.on( "call.new", this._onentitybusy.bind( this ) )
-    this.options.em.on( "call.authed", this._onentitybusy.bind( this ) )
+    this._options.em.on( "unregister", this._onentitymightbeunavailable.bind( this ) )
+    this._options.em.on( "call.new", this._onentitybusy.bind( this ) )
+    this._options.em.on( "call.authed", this._onentitybusy.bind( this ) )
 
     /**
     @private
@@ -128,9 +128,9 @@ class fifos {
   @param { string } [ options.mode = "ringall" ] - or "enterprise"
   @returns { Promise } - resolves when answered or fails.
   */
-  async queue( options ) {
+  queue( options ) {
     let d = this._getdomain( options.domain )
-    if( d ) await d.queue( options )
+    return d.queue( options )
   }
 
   /**
@@ -141,9 +141,6 @@ class fifos {
   @param { array.< string > } options.agents - array of agents i.e. [ "1000@dummy.com" ]
   */
   addagents( options ) {
-    let d = this._getdomain( options.domain )
-    if( d ) d.agents( options )
-
     for( let agent of options.agents ) {
       this.addagent( {
         "name": options.name,
@@ -154,24 +151,22 @@ class fifos {
   }
 
   /**
-  Sets the members of a queue
+  Add a member to a queue
   @param { object } options
   @param { string } options.name - the name of the queue
   @param { string } options.domain - the domain for the queue
   @param { string } options.agent - agent i.e. "1000@dummy.com"
   */
   addagent( options ) {
-    if( !options.agent ) return
+    if( !options || !options.agent ) return
 
     let d = this._getdomain( options.domain )
 
-    let ouragent
-
     if( this._allagents.has( options.agent ) ) {
-      ouragent = this._allagents.get( options.agent )
+      let ouragent = this._allagents.get( options.agent )
       d.addagent( options, ouragent )
     } else {
-      ouragent = {
+      let ouragent = {
         "uri": options.agent,
         "fifos": new Set(),
         "state": "available"
@@ -181,6 +176,66 @@ class fifos {
 
       if( !d.addagent( options, ouragent ) ) {
         /* this shouldn't happen */
+        this._allagents.delete( options.agent )
+      }
+    }
+  }
+
+  /**
+  Sets the agents to this list miantaining current state
+  @param { object } options
+  @param { string } options.name - the name of the queue
+  @param { string } options.domain - the domain for the queue
+  @param { string } options.agents - agent i.e. [ "1000@dummy.com", "1001@dummy.com" ]
+  */
+  agents( options ) {
+
+    /* first remove any agents not in our new list */
+    let agents = {}
+    for( let agent of options.agents ) {
+      agents[ agent ] = true
+    }
+
+    let d = this._getdomain( options.domain )
+    let f = d.getfifo( options.name )
+    let currentagents = f.agents
+    for( let currentagent of currentagents ) {
+      if( !( currentagent in agents ) ) {
+        this.deleteagent( {
+          "name": options.name,
+          "domain": options.domain,
+          "agent": currentagent
+         } )
+      }
+    }
+
+    /* now add */
+    for( let agent of options.agents ) {
+      this.addagent( {
+        "name": options.name,
+        "domain": options.domain,
+        "agent": agent
+      } )
+    }
+  }
+
+  /**
+  Removes a member froma queue. If the agent is not a member of any other
+  queue clean up.
+  @param { object } options
+  @param { string } options.name - the name of the queue
+  @param { string } options.domain - the domain for the queue
+  @param { string } options.agent - agent i.e. "1000@dummy.com"
+  */
+  deleteagent( options ) {
+    if( !options || !options.agent ) return
+
+    let d = this._getdomain( options.domain )
+
+    if( this._allagents.has( options.agent ) ) {
+      d.deleteagent( options )
+      let agentinfo = this._allagents.get( options.agent )
+      if( 0 === agentinfo.fifos.size ) {
         this._allagents.delete( options.agent )
       }
     }

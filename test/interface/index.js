@@ -158,4 +158,31 @@ describe( "interface index.js", function() {
     expect( privateagentinfo.fifos.size ).to.equal( 1 ) /* a member of one fifo */
 
   } )
+
+  it( `replace all agents by calling sync function`, async function() {
+    let options = {
+      "srf": {},
+      "agentlag": 10 /* mS - test */
+    }
+
+    let mainfifo = fifo.create( options )
+
+    mainfifo.addagents( { 
+      "name": "fifotest",
+      "domain": "dummy.com",
+      "agents": [ "1000@dummy.com", "1001@dummy.com", "1002@dummy.com" ]
+    } )
+
+    expect( mainfifo._allagents.size ).to.equal( 3 )
+
+    /* sync rather than add */
+    mainfifo.agents( {
+      "name": "fifotest",
+      "domain": "dummy.com",
+      "agents": [ "1000@dummy.com", "1005@dummy.com" ]
+    } )
+
+    expect( mainfifo._allagents.size ).to.equal( 2 )
+
+  } )
 } )
