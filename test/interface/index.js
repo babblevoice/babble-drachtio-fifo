@@ -244,28 +244,41 @@ describe( "interface index.js", function() {
       }, globaloptions.uactimeout )
     }
 
-    let mockinboundcall = {
-      "uuid": "1",
-      "_em": new events.EventEmitter(),
-      "on": ( e, cb ) => mockinboundcall._em.on( e, cb ),
-      "vars": {},
-      "newuac": function ( options, callbacks ) {
+    class mockinboundcall {
+      constructor() {
+        this.uuid = "" + mockinboundcall.inboundcallcount
+        mockinboundcall.inboundcallcount++
+
+        this._em = new events.EventEmitter()
+        this.vars = {}
+
+      }
+
+      static inboundcallcount = 0
+
+      on( e, cb ) {
+        this._em.on( e, cb )
+      }
+
+      newuac( options, callbacks ) {
         newcallcount++
         killcalls( callbacks, new mockagentcall( options.entity.uri ) )
       }
     }
 
-    /* now back to our inbound call */
-    let reason = await mainfifo.queue( {
-      "call": mockinboundcall,
+    let qitem = {
+      "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
       "mode": "ringall",
       "timeout": 1
-    } )
+    }
 
-    expect( mockinboundcall.vars.fifo.epochs.leave - mockinboundcall.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
-    expect( mockinboundcall.vars.fifo.state ).to.equal( "timeout" )
+    /* now back to our inbound call */
+    let reason = await mainfifo.queue( qitem )
+
+    expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
+    expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
     expect( newcallcount ).to.be.within( 90, 110 )
     expect( reason ).to.equal( "timeout" )
 
