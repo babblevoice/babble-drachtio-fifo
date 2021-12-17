@@ -181,7 +181,7 @@ class fifos {
         "fifos": new Set(),
         "state": "available",
         "callcount": 0,
-        "last": + new Date()
+        "last": 0
       }
 
       this._allagents.set( options.agent, ouragent )
