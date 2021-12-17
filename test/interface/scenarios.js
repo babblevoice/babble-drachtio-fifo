@@ -67,7 +67,7 @@ describe( "interface scenarios.js", function() {
       on( e, cb ) {
         this._em.on( e, cb )
       }
-      _killcalls( callbacks, agentcall ) {
+      _killcalls( options, callbacks, agentcall ) {
         callbacks.early( agentcall )
 
         setTimeout( () => {
@@ -75,12 +75,12 @@ describe( "interface scenarios.js", function() {
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
-        }, globaloptions.uactimeout )
+        }, options.uactimeout )
       }
 
       newuac( options, callbacks ) {
         mockinboundcall.newcallcount++
-        this._killcalls( callbacks, new mockagentcall( options.entity.uri ) )
+        this._killcalls( options, callbacks, new mockagentcall( options.entity.uri ) )
       }
     }
 
@@ -163,7 +163,7 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      _killcalls( callbacks, agentcall ) {
+      _killcalls( options, callbacks, agentcall ) {
         callbacks.early( agentcall )
 
         setTimeout( () => {
@@ -171,12 +171,12 @@ describe( "interface scenarios.js", function() {
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
-        }, globaloptions.uactimeout )
+        }, options.uactimeout )
       }
 
       newuac( options, callbacks ) {
         mockinboundcall.newoutboundcallcount++
-        this._killcalls( callbacks, new mockagentcall( options.entity.uri ) )
+        this._killcalls( options, callbacks, new mockagentcall( options.entity.uri ) )
       }
     }
 
@@ -284,7 +284,7 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      _killcalls( callbacks, agentcall ) {
+      _killcalls( options, callbacks, agentcall ) {
         callbacks.early( agentcall )
 
         setTimeout( () => {
@@ -292,12 +292,12 @@ describe( "interface scenarios.js", function() {
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
-        }, globaloptions.uactimeout )
+        }, options.uactimeout )
       }
 
       newuac( options, callbacks ) {
         mockinboundcall.newoutboundcallcount++
-        this._killcalls( callbacks, new mockagentcall( options.entity.uri, this, callbacks ) )
+        this._killcalls( options, callbacks, new mockagentcall( options.entity.uri, this, callbacks ) )
       }
     }
 
@@ -408,7 +408,7 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      _killcalls( callbacks, agentcall ) {
+      _killcalls( options, callbacks, agentcall ) {
         callbacks.early( agentcall )
 
         setTimeout( () => {
@@ -416,12 +416,12 @@ describe( "interface scenarios.js", function() {
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
-        }, globaloptions.uactimeout )
+        }, options.uactimeout )
       }
 
       newuac( options, callbacks ) {
         mockinboundcall.newoutboundcallcount++
-        this._killcalls( callbacks, new mockagentcall( options.entity.uri, this, callbacks ) )
+        this._killcalls( options, callbacks, new mockagentcall( options.entity.uri, this, callbacks ) )
       }
     }
 
