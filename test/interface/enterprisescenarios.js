@@ -219,8 +219,8 @@ describe( "interface enterprisescenarios.js", function() {
     expect( reason2 ).to.equal( "timeout" )
 
     /* ensure the calls are split between agents */
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1000@dummy.com" ).length ).to.be.within( 48, 52 )
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1001@dummy.com" ).length ).to.be.within( 48, 52 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1000@dummy.com" ).length ).to.be.within( 46, 54 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1001@dummy.com" ).length ).to.be.within( 46, 54 )
 
   } )
 
