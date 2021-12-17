@@ -13,6 +13,7 @@ class fifos {
   @param { object } options
   @param { object } options.srf - srf object
   @param { object } [ options.em ] - event emmitter
+  @param { number } [ options.uactimeout = 60000 ] - default uactimeout (mS)
   @param { number } [ options.agentlag = 30000 ] - duration after last call to retry next new call (mS)
   */
   constructor( options ) {
@@ -179,7 +180,8 @@ class fifos {
         "uri": options.agent,
         "fifos": new Set(),
         "state": "available",
-        "callcount": 0
+        "callcount": 0,
+        "last": + new Date()
       }
 
       this._allagents.set( options.agent, ouragent )
@@ -262,7 +264,7 @@ class fifos {
       return this._domains.get( domainname )
     }
 
-    let newdomain = domain.create()
+    let newdomain = domain.create( this._options )
     this._domains.set( domainname, newdomain )
     return newdomain
   }
