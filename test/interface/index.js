@@ -330,19 +330,6 @@ describe( "interface index.js", function() {
       }
     }
 
-    let newcallcount = 0
-
-    function killcalls( callbacks, agentcall ) {
-      callbacks.early( agentcall )
-
-      setTimeout( () => {
-        /* these are emitted by callmanager - in this order */
-        agentcall._em.emit( "call.destroyed", agentcall )
-        globaloptions.em.emit( "call.destroyed", agentcall )
-        
-      }, globaloptions.uactimeout )
-    }
-
     class mockinboundcall {
       constructor() {
         this.uuid = "" + mockinboundcall.inboundcallcount
@@ -354,14 +341,26 @@ describe( "interface index.js", function() {
       }
 
       static inboundcallcount = 0
+      static newoutboundcallcount = 0
 
       on( e, cb ) {
         this._em.on( e, cb )
       }
 
+      _killcalls( callbacks, agentcall ) {
+        callbacks.early( agentcall )
+
+        setTimeout( () => {
+          /* these are emitted by callmanager - in this order */
+          agentcall._em.emit( "call.destroyed", agentcall )
+          globaloptions.em.emit( "call.destroyed", agentcall )
+          
+        }, globaloptions.uactimeout )
+      }
+
       newuac( options, callbacks ) {
-        newcallcount++
-        killcalls( callbacks, new mockagentcall( options.entity.uri ) )
+        mockinboundcall.newoutboundcallcount++
+        this._killcalls( callbacks, new mockagentcall( options.entity.uri ) )
       }
     }
 
@@ -392,7 +391,7 @@ describe( "interface index.js", function() {
 
     expect( qitems[ 0 ].call.vars.fifo.epochs.leave - qitems[ 0 ].call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
     expect( qitems[ 0 ].call.vars.fifo.state ).to.equal( "timeout" )
-    expect( newcallcount ).to.be.within( 90, 110 )
+    expect( mockinboundcall.newoutboundcallcount ).to.be.within( 90, 110 )
     expect( reason ).to.equal( "timeout" )
     expect( reason2 ).to.equal( "timeout" )
 
