@@ -276,7 +276,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
 
       update() {
-
+        this.updatecalled = true
       }
 
       on( ev, cb ) {
@@ -317,7 +317,8 @@ describe( "interface enterprisescenarios.js", function() {
       }
 
       adopt( childcall ) {
-
+        this.adoptcalled = true
+        this.child = childcall
       }
 
       newuac( options, callbacks ) {
@@ -368,5 +369,8 @@ describe( "interface enterprisescenarios.js", function() {
     expect( mockinboundcall.newoutboundcallcount ).to.be.within( 57, 63 )
     expect( reason ).to.equal( "confirm" )
     expect( reason2 ).to.equal( "timeout" )
+
+    expect( qitems[ 0 ].call.adoptcalled ).to.be.true
+    expect( qitems[ 0 ].call.child.updatecalled ).to.be.true
   } )
 } )
