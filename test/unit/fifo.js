@@ -23,6 +23,7 @@ describe( "unit fifo.js", function() {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
+      "emit": ( ev ) => {},
       "vars": {}
     }
 
@@ -70,6 +71,7 @@ describe( "unit fifo.js", function() {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
+      "emit": ( ev ) => {},
       "vars": {}
     }
 
@@ -196,6 +198,7 @@ describe( "unit fifo.js", function() {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
+      "emit": ( ev ) => {},
       "vars": {}
     }
 
@@ -279,6 +282,7 @@ describe( "unit fifo.js", function() {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => mockinboundcall._em.on( e, cb ),
+      "emit": ( ev ) => {},
       "vars": {},
       "newuac": function ( options, callbacks ) {
         newcallcount++
