@@ -68,8 +68,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      emit( ev ) {
-        
+      off( e, cb ) {
+      }
+
+      emit( ev ) { 
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -168,8 +170,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
+      off( e, cb ) {
+      }
+
       emit( ev ) {
-        
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -293,8 +297,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
+      off( e, cb ) {
+      }
+
       emit( ev ) {
-        
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -421,8 +427,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
+      off( e, cb ) {
+      }
+
       emit( ev ) {
-        
       }
 
       _killcalls( options, callbacks, agentcall ) {

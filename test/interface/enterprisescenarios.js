@@ -71,8 +71,10 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( e, cb )
       }
 
+      off( e, cb ) {
+      }
+
       emit( ev ) {
-        
       }
 
       _killcalls( callbacks, agentcall ) {
@@ -178,6 +180,9 @@ describe( "interface enterprisescenarios.js", function() {
 
       on( e, cb ) {
         this._em.on( e, cb )
+      }
+
+      off( e, cb ) {
       }
 
       emit( ev ) {
@@ -327,6 +332,9 @@ describe( "interface enterprisescenarios.js", function() {
 
       on( e, cb ) {
         this._em.on( e, cb )
+      }
+
+      off( e, cb ) {
       }
 
       emit( ev ) {
@@ -486,6 +494,9 @@ describe( "interface enterprisescenarios.js", function() {
 
       on( e, cb ) {
         this._em.on( e, cb )
+      }
+
+      off( e, cb ) {
       }
 
       emit( ev ) {
