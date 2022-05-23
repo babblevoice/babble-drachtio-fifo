@@ -1,6 +1,5 @@
 
 const events = require( "events" )
-const assert = require( "assert" ).strict
 
 const domain = require( "./lib/domain.js" )
 
@@ -17,8 +16,6 @@ class fifos {
   @param { number } [ options.agentlag = 30000 ] - duration after last call to retry next new call (mS)
   */
   constructor( options ) {
-
-    assert( options.srf, "You must supply an srf object" )
 
     /**
     @private

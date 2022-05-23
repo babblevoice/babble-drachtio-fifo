@@ -37,7 +37,7 @@ describe( "unit fifo.js", function() {
 
     expect( f._calls.has( call.uuid ) ).to.be.true
 
-    call._em.emit( "call.hangup", call )
+    call._em.emit( "call.destroyed", call )
 
     expect( f._fifos[ 4 ] ).to.be.a( "array" ).to.have.lengthOf( 0 )
     expect( f._callcount ).to.equal( 0 )
@@ -79,7 +79,7 @@ describe( "unit fifo.js", function() {
 
     f.queue( { call } )
 
-    call._em.emit( "call.hangup", call )
+    call._em.emit( "call.destroyed", call )
 
     expect( agentinfo[ 0 ].fifos.size ).to.equal( 1 )
     expect( agentinfo[ 1 ].fifos.size ).to.equal( 1 )
@@ -207,7 +207,7 @@ describe( "unit fifo.js", function() {
 
     let waiting = f.queue( { call } )
 
-    call._em.emit( "call.hangup", call )
+    call._em.emit( "call.destroyed", call )
 
     let reason = await waiting
 

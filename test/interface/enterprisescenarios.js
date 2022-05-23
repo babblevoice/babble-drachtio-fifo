@@ -186,7 +186,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
 
       emit( ev ) {
-        if( "fifo.update" === ev ) {
+        if( "fifo.update" === ev || "fifo.enter" === ev ) {
           this.mockfifoupdates++
           this.mockfifopositions.push( this.vars.fifo.position )
         }
@@ -500,7 +500,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
 
       emit( ev ) {
-        if( "fifo.update" === ev ) {
+        if( "fifo.update" === ev || "fifo.enter" === ev ) {
           this.mockfifoupdates++
           this.mockfifopositions.push( this.vars.fifo.position )
         }
@@ -524,7 +524,7 @@ describe( "interface enterprisescenarios.js", function() {
 
       mockhangupafter( timeout ) {
         setTimeout( () => {
-          this._em.emit( "call.hangup", this )
+          this._em.emit( "call.destroyed", this )
         }, timeout )
       }
 
