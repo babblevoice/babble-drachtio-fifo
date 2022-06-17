@@ -1,5 +1,5 @@
 {
-  "name": "babble-drachtio-fifo",
+  "name": "@tinpotnick/babble-drachtio-fifo",
   "version": "1.0.0",
   "description": "A call queue (fifo)",
   "main": "index.js",
@@ -7,11 +7,24 @@
     "test": "./node_modules/mocha/bin/mocha --recursive --check-leaks",
     "docs": "jsdoc -c jsdoc.conf.json"
   },
-  "author": "",
+  "author": "Nick Knight",
   "license": "MIT",
   "dependencies": {
     "chai": "^4.3.4",
     "drachtio-srf": "^4.4.59",
     "mocha": "^9.1.3"
-  }
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/babblevoice/babble-drachtio-fifo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/babblevoice/babble-drachtio-fifo/issues"
+  },
+  "homepage": "https://github.com/babblevoice/babble-drachtio-fifo#readme"
 }
