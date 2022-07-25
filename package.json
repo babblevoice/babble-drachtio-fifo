@@ -1,6 +1,6 @@
 {
   "name": "@babblevoice/babble-drachtio-fifo",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A call queue (fifo)",
   "main": "index.js",
   "scripts": {
