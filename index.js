@@ -101,7 +101,10 @@ class fifos {
   }
 
   async _onentitymightbeavailable( reginfo ) {
-    if( this._allagents.has( reginfo.auth.uri ) ) {
+    if( this._allagents.has( reginfo.auth.uri ) && reginfo.initial ) {
+      let agent = this._allagents.get( reginfo.auth.uri )
+      agent.state = "available"
+      this._callagents( agent )
     }
   }
 
