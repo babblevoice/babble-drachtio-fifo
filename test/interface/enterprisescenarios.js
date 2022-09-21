@@ -575,4 +575,236 @@ describe( "interface enterprisescenarios.js", function() {
     expect( qitems[ 1 ].call.mockfifopositions[ 1 ] ).to.equal( 0 )
 
   } )
+
+  it( `main enterprise queue 1 call and set caller id number`, async function() {
+
+    this.timeout( 2000 )
+    this.slow( 1500 )
+
+    /* create a global fifo object */
+    let globaloptions = {
+      "registrar": registrar.create(),
+      "srf": srf.create(),
+      "uactimeout": 10, /* mS */
+      "agentlag": 10
+    }
+
+    let mainfifo = fifo.create( globaloptions )
+
+    mainfifo.agents( {
+      "domain": "dummy.com",
+      "name": "fifoname",
+      "agents": [ "1000@dummy.com", "1001@dummy.com" ]
+    } )
+
+    /* setup our mock interfaces */
+    globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
+    globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
+
+    class mockagentcall {
+
+      static agenturicalls = []
+      constructor( uri ) {
+        this.uri = uri
+        this._em = new events.EventEmitter()
+        mockagentcall.agenturicalls.push( uri )
+      }
+      get entity() {
+        return ( async () => {
+          return {
+            "uri": this.uri,
+            "ccc": 0 /* our tests ask this when we have finished */
+          }
+        } )()
+      }
+
+      on( ev, cb ) {
+        this._em.on( ev, cb )
+      }
+    }
+
+    class mockinboundcall {
+      constructor() {
+        this.uuid = "" + mockinboundcall.inboundcallcount
+        mockinboundcall.inboundcallcount++
+
+        this._em = new events.EventEmitter()
+        this.vars = {}
+
+      }
+
+      static inboundcallcount = 0
+      static newcallcount = 0
+      static lastoptions = {}
+
+      on( e, cb ) {
+        this._em.on( e, cb )
+      }
+
+      off( e, cb ) {
+      }
+
+      emit( ev ) {
+      }
+
+      _killcalls( callbacks, agentcall ) {
+        callbacks.early( agentcall )
+
+        setTimeout( () => {
+          /* these are emitted by callmanager - in this order */
+          agentcall._em.emit( "call.destroyed", agentcall )
+          globaloptions.em.emit( "call.destroyed", agentcall )
+          
+        }, globaloptions.uactimeout )
+      }
+
+      newuac( options, callbacks ) {
+        mockinboundcall.newcallcount++
+        this._killcalls( callbacks, new mockagentcall( options.entity.uri ) )
+        mockinboundcall.lastoptions = options
+      }
+    }
+
+    let qitem = {
+      "call": new mockinboundcall(),
+      "name": "fifoname",
+      "domain": "dummy.com",
+      "mode": "enterprise",
+      "timeout": 1,
+      "callerid": {
+        "number": "0123456789"
+      }
+    }
+
+    /* now back to our inbound call */
+    let reason = await mainfifo.queue( qitem )
+
+    expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
+    expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
+    expect( mockinboundcall.newcallcount ).to.be.within( 45, 55 )
+    expect( reason ).to.equal( "timeout" )
+
+    /* ensure the calls are split between agents */
+    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1000@dummy.com" ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1001@dummy.com" ).length ).to.be.within( 23, 28 )
+
+    expect( mockinboundcall.lastoptions.callerid.number ).to.equal( "0123456789" )
+
+  } )
+
+  it( `main enterprise queue 1 call and set caller id name`, async function() {
+
+    this.timeout( 2000 )
+    this.slow( 1500 )
+
+    /* create a global fifo object */
+    let globaloptions = {
+      "registrar": registrar.create(),
+      "srf": srf.create(),
+      "uactimeout": 10, /* mS */
+      "agentlag": 10
+    }
+
+    let mainfifo = fifo.create( globaloptions )
+
+    mainfifo.agents( {
+      "domain": "dummy.com",
+      "name": "fifoname",
+      "agents": [ "1000@dummy.com", "1001@dummy.com" ]
+    } )
+
+    /* setup our mock interfaces */
+    globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
+    globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
+
+    class mockagentcall {
+
+      static agenturicalls = []
+      constructor( uri ) {
+        this.uri = uri
+        this._em = new events.EventEmitter()
+        mockagentcall.agenturicalls.push( uri )
+      }
+      get entity() {
+        return ( async () => {
+          return {
+            "uri": this.uri,
+            "ccc": 0 /* our tests ask this when we have finished */
+          }
+        } )()
+      }
+
+      on( ev, cb ) {
+        this._em.on( ev, cb )
+      }
+    }
+
+    class mockinboundcall {
+      constructor() {
+        this.uuid = "" + mockinboundcall.inboundcallcount
+        mockinboundcall.inboundcallcount++
+
+        this._em = new events.EventEmitter()
+        this.vars = {}
+
+      }
+
+      static inboundcallcount = 0
+      static newcallcount = 0
+      static lastoptions = {}
+
+      on( e, cb ) {
+        this._em.on( e, cb )
+      }
+
+      off( e, cb ) {
+      }
+
+      emit( ev ) {
+      }
+
+      _killcalls( callbacks, agentcall ) {
+        callbacks.early( agentcall )
+
+        setTimeout( () => {
+          /* these are emitted by callmanager - in this order */
+          agentcall._em.emit( "call.destroyed", agentcall )
+          globaloptions.em.emit( "call.destroyed", agentcall )
+          
+        }, globaloptions.uactimeout )
+      }
+
+      newuac( options, callbacks ) {
+        mockinboundcall.newcallcount++
+        this._killcalls( callbacks, new mockagentcall( options.entity.uri ) )
+        mockinboundcall.lastoptions = options
+      }
+    }
+
+    let qitem = {
+      "call": new mockinboundcall(),
+      "name": "fifoname",
+      "domain": "dummy.com",
+      "mode": "enterprise",
+      "timeout": 1,
+      "callerid": {
+        "name": "Queue"
+      }
+    }
+
+    /* now back to our inbound call */
+    let reason = await mainfifo.queue( qitem )
+
+    expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
+    expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
+    expect( mockinboundcall.newcallcount ).to.be.within( 45, 55 )
+    expect( reason ).to.equal( "timeout" )
+
+    /* ensure the calls are split between agents */
+    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1000@dummy.com" ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1001@dummy.com" ).length ).to.be.within( 23, 28 )
+
+    expect( mockinboundcall.lastoptions.callerid.name ).to.equal( "Queue" )
+
+  } )
 } )
