@@ -62,21 +62,21 @@ class fifos {
   Trigger a call from the next most important queue (based on oldest next)
   */
   _callagents( agentinfo ) {
-    let unorderedfifos = Array.from( agentinfo.fifos )
+    const unorderedfifos = Array.from( agentinfo.fifos )
 
-    let frontcalls = []
+    const frontcalls = []
     for( const fifo of unorderedfifos ) {
-      let nextcallforqueue = fifo._getnextcaller()
+      const nextcallforqueue = fifo._getnextcaller()
       if( nextcallforqueue ) frontcalls.push( nextcallforqueue )
     }
 
     /* oldest first */
-    if( frontcalls.length > 1 )
+    if( 1 < frontcalls.length )
       frontcalls.sort( ( a, b ) => { return b.age - a.age } )
 
-    if( frontcalls.length > 0 )
+    if( 0 < frontcalls.length )
       frontcalls[ 0 ]._fifo._callagents()
-}
+  }
 
   /**
   Called by callmanager event emitter
@@ -84,11 +84,11 @@ class fifos {
   @private 
   */
   async _onentitymightbefree( call ) {
-    let entity = await call.entity
+    const entity = await call.entity
     if( entity && 0 === entity.ccc ) {
       /* We know who it is and they have no other calls */
       if( this._allagents.has( entity.uri ) ) {
-        let agent = this._allagents.get( entity.uri )
+        const agent = this._allagents.get( entity.uri )
         if( "ringing" === agent.state || "busy" === agent.state ) {
           agent.state = "resting"
           setTimeout( () => {
@@ -102,15 +102,15 @@ class fifos {
 
   async _onentitymightbeavailable( reginfo ) {
     if( this._allagents.has( reginfo.auth.uri ) && reginfo.initial ) {
-      let agent = this._allagents.get( reginfo.auth.uri )
+      const agent = this._allagents.get( reginfo.auth.uri )
       agent.state = "available"
       this._callagents( agent )
     }
   }
 
-  async _onentitymightbeunavailable( reginfo ) {
-    if( this._allagents.has( reginfo.auth.uri ) ) {
-    }
+  async _onentitymightbeunavailable( /*reginfo*/ ) {
+    //if( this._allagents.has( reginfo.auth.uri ) ) {
+    //}
   }
 
   /**
@@ -119,8 +119,8 @@ class fifos {
   @private 
   */
   async _onentitybusy( call ) {
-    let entity = await call.entity
-    if( entity && entity.ccc > 0 ) {
+    const entity = await call.entity
+    if( entity && 0 < entity.ccc ) {
       if( this._allagents.has( entity.uri ) ) {
         this._allagents.get( entity.uri ).state = "busy"
       }
@@ -139,7 +139,7 @@ class fifos {
   @returns { Promise } - resolves when answered or fails.
   */
   queue( options ) {
-    let d = this.getdomain( options.domain )
+    const d = this.getdomain( options.domain )
     return d.queue( options )
   }
 
@@ -148,10 +148,10 @@ class fifos {
   @param { object } options
   @param { string } options.name - the name of the queue
   @param { string } options.domain - the domain for the queue
-  @param { array.< string > } options.agents - array of agents i.e. [ "1000@dummy.com" ]
+  @param { Array.< string > } options.agents - array of agents i.e. [ "1000@dummy.com" ]
   */
   addagents( options ) {
-    for( let agent of options.agents ) {
+    for( const agent of options.agents ) {
       this.addagent( {
         "name": options.name,
         "domain": options.domain,
@@ -170,13 +170,13 @@ class fifos {
   addagent( options ) {
     if( !options || !options.agent ) return
 
-    let d = this.getdomain( options.domain )
+    const d = this.getdomain( options.domain )
 
     if( this._allagents.has( options.agent ) ) {
-      let ouragent = this._allagents.get( options.agent )
+      const ouragent = this._allagents.get( options.agent )
       d.addagent( options, ouragent )
     } else {
-      let ouragent = {
+      const ouragent = {
         "uri": options.agent,
         "fifos": new Set(),
         "state": "available",
@@ -198,31 +198,31 @@ class fifos {
   @param { object } options
   @param { string } options.name - the name of the queue
   @param { string } options.domain - the domain for the queue
-  @param { string } options.agents - agent i.e. [ "1000@dummy.com", "1001@dummy.com" ]
+  @param { Array.< string > } options.agents - agent i.e. [ "1000@dummy.com", "1001@dummy.com" ]
   */
   agents( options ) {
 
     /* first remove any agents not in our new list */
-    let agents = {}
-    for( let agent of options.agents ) {
+    const agents = {}
+    for( const agent of options.agents ) {
       agents[ agent ] = true
     }
 
-    let d = this.getdomain( options.domain )
-    let f = d.getfifo( options.name )
-    let currentagents = f.agents
-    for( let currentagent of currentagents ) {
+    const d = this.getdomain( options.domain )
+    const f = d.getfifo( options.name )
+    const currentagents = f.agents
+    for( const currentagent of currentagents ) {
       if( !( currentagent in agents ) ) {
         this.deleteagent( {
           "name": options.name,
           "domain": options.domain,
           "agent": currentagent
-         } )
+        } )
       }
     }
 
     /* now add */
-    for( let agent of options.agents ) {
+    for( const agent of options.agents ) {
       this.addagent( {
         "name": options.name,
         "domain": options.domain,
@@ -242,11 +242,11 @@ class fifos {
   deleteagent( options ) {
     if( !options || !options.agent ) return
 
-    let d = this.getdomain( options.domain )
+    const d = this.getdomain( options.domain )
 
     if( this._allagents.has( options.agent ) ) {
       d.deleteagent( options )
-      let agentinfo = this._allagents.get( options.agent )
+      const agentinfo = this._allagents.get( options.agent )
       if( 0 === agentinfo.fifos.size ) {
         this._allagents.delete( options.agent )
       }
@@ -264,7 +264,7 @@ class fifos {
       return this._domains.get( domainname )
     }
 
-    let newdomain = domain.create( this._options )
+    const newdomain = domain.create( this._options )
     this._domains.set( domainname, newdomain )
     return newdomain
   }
