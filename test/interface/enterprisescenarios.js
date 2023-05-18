@@ -17,7 +17,7 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -126,7 +126,7 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -260,7 +260,7 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -422,7 +422,7 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -586,7 +586,7 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -702,7 +702,7 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )

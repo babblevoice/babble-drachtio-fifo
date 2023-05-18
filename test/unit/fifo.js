@@ -231,7 +231,7 @@ describe( "unit fifo.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let f = fifo.create( globaloptions )
@@ -308,7 +308,7 @@ describe( "unit fifo.js", function() {
             }
             
             f._callagents()
-          }, globaloptions.agentlag )
+          }, globaloptions.agentdelay )
           
         }, globaloptions.uactimeout )
       }

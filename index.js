@@ -13,7 +13,7 @@ class fifos {
   @param { object } options.srf - srf object
   @param { object } [ options.em ] - event emmitter
   @param { number } [ options.uactimeout = 60000 ] - default uactimeout (mS)
-  @param { number } [ options.agentlag = 30000 ] - duration after last call to retry next new call (mS)
+  @param { number } [ options.agentdelay = 30000 ] - duration after last call to retry next new call (mS)
   */
   constructor( options ) {
 
@@ -54,8 +54,8 @@ class fifos {
     /**
     @private
     */
-    this._agentlag = 30000
-    if( options && options.agentlag ) this._agentlag = options.agentlag
+    this._agentdelay = 30000
+    if( options && options.agentdelay ) this._agentdelay = options.agentdelay
   }
 
   /**
@@ -94,7 +94,7 @@ class fifos {
           setTimeout( () => {
             agent.state = "available"
             this._callagents( agent )
-          }, this._agentlag )
+          }, this._agentdelay )
         }
       }
     }

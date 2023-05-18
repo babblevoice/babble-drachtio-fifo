@@ -17,7 +17,7 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -119,7 +119,7 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -235,7 +235,7 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -365,7 +365,7 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -488,7 +488,7 @@ describe( "interface scenarios.js", function() {
 
     /*
     600mS queueing time
-    ring time 10mS, agentlag 10mS, 2 phones
+    ring time 10mS, agentdelay 10mS, 2 phones
     600 / ( ( 10 + 10 ) / 2 ) = 60 ( add allowance of 10 either way )
     */
     expect( mockinboundcall.newoutboundcallcount ).to.be.within( 50, 70 )
@@ -505,7 +505,7 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -670,7 +670,7 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )
@@ -774,7 +774,7 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentdelay": 10
     }
 
     let mainfifo = fifo.create( globaloptions )

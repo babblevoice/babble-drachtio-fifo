@@ -11,7 +11,7 @@ describe( "interface index.js", function() {
   it( `create main fifo`, async function() {
     let options = {
       "srf": {},
-      "agentlag": 10 /* mS - test */
+      "agentdelay": 10 /* mS - test */
     }
 
     let mainfifo = fifo.create( options )
@@ -20,14 +20,14 @@ describe( "interface index.js", function() {
     expect( mainfifo ).to.be.a( "object" ).to.have.property( "_options" )
     expect( mainfifo ).to.be.a( "object" ).to.have.property( "_domains" )
     expect( mainfifo ).to.be.a( "object" ).to.have.property( "_allagents" )
-    expect( mainfifo ).to.be.a( "object" ).to.have.property( "_agentlag" ).to.equal( 10 )
+    expect( mainfifo ).to.be.a( "object" ).to.have.property( "_agentdelay" ).to.equal( 10 )
   } )
 
   it( `add agent to a fifo`, async function() {
 
     let options = {
       "srf": {},
-      "agentlag": 10 /* mS - test */
+      "agentdelay": 10 /* mS - test */
     }
 
     let mainfifo = fifo.create( options )
@@ -53,7 +53,7 @@ describe( "interface index.js", function() {
 
     let options = {
       "srf": {},
-      "agentlag": 10 /* mS - test */
+      "agentdelay": 10 /* mS - test */
     }
 
     let mainfifo = fifo.create( options )
@@ -77,7 +77,7 @@ describe( "interface index.js", function() {
 
     let options = {
       "srf": {},
-      "agentlag": 10 /* mS - test */
+      "agentdelay": 10 /* mS - test */
     }
 
     let mainfifo = fifo.create( options )
@@ -117,7 +117,7 @@ describe( "interface index.js", function() {
 
     let options = {
       "srf": {},
-      "agentlag": 10 /* mS - test */
+      "agentdelay": 10 /* mS - test */
     }
 
     let mainfifo = fifo.create( options )
@@ -162,7 +162,7 @@ describe( "interface index.js", function() {
   it( `replace all agents by calling sync function`, async function() {
     let options = {
       "srf": {},
-      "agentlag": 10 /* mS - test */
+      "agentdelay": 10 /* mS - test */
     }
 
     let mainfifo = fifo.create( options )
