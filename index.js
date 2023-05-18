@@ -90,11 +90,17 @@ class fifos {
       if( this._allagents.has( entity.uri ) ) {
         const agent = this._allagents.get( entity.uri )
         if( "ringing" === agent.state || "busy" === agent.state ) {
-          agent.state = "resting"
-          setTimeout( () => {
+          /* 50 ms is not worth a timer let's go real time */
+          if (50 >= this._agentdelay ) {
             agent.state = "available"
             this._callagents( agent )
-          }, this._agentdelay )
+          } else {
+            agent.state = "resting"
+            setTimeout( () => {
+             agent.state = "available"
+             this._callagents( agent )
+            }, this._agentdelay )
+          }
         }
       }
     }
@@ -267,6 +273,18 @@ class fifos {
     const newdomain = domain.create( this._options )
     this._domains.set( domainname, newdomain )
     return newdomain
+  }
+
+  /**
+  Called by the queues rules to set the agent delay
+  @param { number } delay - A timeout in ms for the agent before
+  it becomes available again for a new call.
+  @return { void }
+  */
+  setagentdelay( delay ) {
+    // Note that agents currently resting
+    // will not be affected by that call (by design).
+    this._agentdelay = delay
   }
 
   /**
