@@ -94,7 +94,7 @@ class fifos {
           setTimeout( () => {
             agent.state = "available"
             this._callagents( agent )
-          }, this._agentlag )
+          }, agent.agentlag )
         }
       }
     }
@@ -166,6 +166,7 @@ class fifos {
   @param { string } options.name - the name of the queue
   @param { string } options.domain - the domain for the queue
   @param { string } options.agent - agent i.e. "1000@dummy.com"
+  @param { number } [ options.agentlag ] - agent wrapup lag
   */
   addagent( options ) {
     if( !options || !options.agent ) return
@@ -174,14 +175,20 @@ class fifos {
 
     if( this._allagents.has( options.agent ) ) {
       const ouragent = this._allagents.get( options.agent )
+      if( options.agentlag ) ouragent.agentlag = options.agentlag
       d.addagent( options, ouragent )
     } else {
+
+      let lag = this._agentlag
+      if( options.agentlag ) lag = options.agentlag
+
       const ouragent = {
         "uri": options.agent,
         "fifos": new Set(),
         "state": "available",
         "callcount": 0,
-        "last": 0
+        "last": 0,
+        "agentlag": lag
       }
 
       this._allagents.set( options.agent, ouragent )
@@ -198,6 +205,7 @@ class fifos {
   @param { object } options
   @param { string } options.name - the name of the queue
   @param { string } options.domain - the domain for the queue
+  @param { number } [ options.agentlag ] - agent wrapup lag
   @param { Array.< string > } options.agents - agent i.e. [ "1000@dummy.com", "1001@dummy.com" ]
   */
   agents( options ) {
@@ -226,6 +234,7 @@ class fifos {
       this.addagent( {
         "name": options.name,
         "domain": options.domain,
+        "agentlag": options.agentlag,
         "agent": agent
       } )
     }
