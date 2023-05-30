@@ -7,20 +7,20 @@ const srf = require( "../mock/srf.js" )
 
 
 describe( "interface enterprisescenarios.js", function() {
-  it( `main enterprise queue 1 call`, async function() {
+  it( "main enterprise queue 1 call", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -71,10 +71,10 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) {
+      emit( /*ev*/ ) {
       }
 
       _killcalls( callbacks, agentcall ) {
@@ -94,7 +94,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
     }
 
-    let qitem = {
+    const qitem = {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -103,7 +103,7 @@ describe( "interface enterprisescenarios.js", function() {
     }
 
     /* now back to our inbound call */
-    let reason = await mainfifo.queue( qitem )
+    const reason = await mainfifo.queue( qitem )
 
     expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
     expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
@@ -111,25 +111,25 @@ describe( "interface enterprisescenarios.js", function() {
     expect( reason ).to.equal( "timeout" )
 
     /* ensure the calls are split between agents */
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1000@dummy.com" ).length ).to.be.within( 23, 28 )
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1001@dummy.com" ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1000@dummy.com" === v ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1001@dummy.com" === v ).length ).to.be.within( 23, 28 )
 
   } )
 
-  it( `main enterprise queue 2 calls`, async function() {
+  it( "main enterprise queue 2 calls", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -182,7 +182,7 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
       emit( ev ) {
@@ -209,7 +209,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
     }
 
-    let qitems = [ {
+    const qitems = [ {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -224,12 +224,12 @@ describe( "interface enterprisescenarios.js", function() {
     } ]
 
     /* now back to our inbound call */
-    let waitforfirst = mainfifo.queue( qitems[ 0 ] )
-    let waitforsecond = mainfifo.queue( qitems[ 1 ] )
+    const waitforfirst = mainfifo.queue( qitems[ 0 ] )
+    const waitforsecond = mainfifo.queue( qitems[ 1 ] )
 
     /* now back to our inbound call */
-    let reason = await waitforfirst
-    let reason2 = await waitforsecond
+    const reason = await waitforfirst
+    const reason2 = await waitforsecond
 
     expect( qitems[ 0 ].call.vars.fifo.epochs.leave - qitems[ 0 ].call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
     expect( qitems[ 0 ].call.vars.fifo.state ).to.equal( "timeout" )
@@ -240,8 +240,8 @@ describe( "interface enterprisescenarios.js", function() {
     expect( reason2 ).to.equal( "timeout" )
 
     /* ensure the calls are split between agents */
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1000@dummy.com" ).length ).to.be.within( 46, 54 )
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1001@dummy.com" ).length ).to.be.within( 46, 54 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1000@dummy.com" === v ).length ).to.be.within( 46, 54 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1001@dummy.com" === v ).length ).to.be.within( 46, 54 )
 
     expect( qitems[ 0 ].call.mockfifoupdates ).to.equal( 1 )
     expect( qitems[ 1 ].call.mockfifoupdates ).to.equal( 2 )
@@ -251,19 +251,19 @@ describe( "interface enterprisescenarios.js", function() {
 
   } )
 
-  it( `main enterprise queue 2 answer 1`, async function() {
+  it( "main enterprise queue 2 answer 1", async function() {
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -334,7 +334,7 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
       emit( ev ) {
@@ -366,7 +366,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
     }
 
-    let qitems = [ {
+    const qitems = [ {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -381,8 +381,8 @@ describe( "interface enterprisescenarios.js", function() {
     } ]
 
     /* now back to our inbound call */
-    let waitforfirst = mainfifo.queue( qitems[ 0 ] )
-    let waitforsecond = mainfifo.queue( qitems[ 1 ] )
+    const waitforfirst = mainfifo.queue( qitems[ 0 ] )
+    const waitforsecond = mainfifo.queue( qitems[ 1 ] )
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 2 )
 
@@ -390,8 +390,8 @@ describe( "interface enterprisescenarios.js", function() {
       mockagentcall.lastcreated.answer()
     }, 200 )
     
-    let reason = await waitforfirst
-    let reason2 = await waitforsecond
+    const reason = await waitforfirst
+    const reason2 = await waitforsecond
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 0 )
 
@@ -413,19 +413,19 @@ describe( "interface enterprisescenarios.js", function() {
     expect( qitems[ 0 ].call.child.updatecalled ).to.be.true
   } )
 
-  it( `main enterprise queue 2 abandon 1`, async function() {
+  it( "main enterprise queue 2 abandon 1", async function() {
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -496,7 +496,7 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
       emit( ev ) {
@@ -534,7 +534,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
     }
 
-    let qitems = [ {
+    const qitems = [ {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -549,15 +549,15 @@ describe( "interface enterprisescenarios.js", function() {
     } ]
 
     /* now back to our inbound call */
-    let waitforfirst = mainfifo.queue( qitems[ 0 ] )
-    let waitforsecond = mainfifo.queue( qitems[ 1 ] )
+    const waitforfirst = mainfifo.queue( qitems[ 0 ] )
+    const waitforsecond = mainfifo.queue( qitems[ 1 ] )
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 2 )
 
     qitems[ 0 ].call.mockhangupafter( 300 )
     
-    let reason = await waitforfirst
-    let reason2 = await waitforsecond
+    const reason = await waitforfirst
+    const reason2 = await waitforsecond
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 0 )
 
@@ -576,20 +576,20 @@ describe( "interface enterprisescenarios.js", function() {
 
   } )
 
-  it( `main enterprise queue 1 call and set caller id number`, async function() {
+  it( "main enterprise queue 1 call and set caller id number", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -641,10 +641,10 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) {
+      emit( /*ev*/ ) {
       }
 
       _killcalls( callbacks, agentcall ) {
@@ -665,7 +665,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
     }
 
-    let qitem = {
+    const qitem = {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -677,7 +677,7 @@ describe( "interface enterprisescenarios.js", function() {
     }
 
     /* now back to our inbound call */
-    let reason = await mainfifo.queue( qitem )
+    const reason = await mainfifo.queue( qitem )
 
     expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
     expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
@@ -685,27 +685,27 @@ describe( "interface enterprisescenarios.js", function() {
     expect( reason ).to.equal( "timeout" )
 
     /* ensure the calls are split between agents */
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1000@dummy.com" ).length ).to.be.within( 23, 28 )
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1001@dummy.com" ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1000@dummy.com" === v ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1001@dummy.com" === v ).length ).to.be.within( 23, 28 )
 
     expect( mockinboundcall.lastoptions.callerid.number ).to.equal( "0123456789" )
 
   } )
 
-  it( `main enterprise queue 1 call and set caller id name`, async function() {
+  it( "main enterprise queue 1 call and set caller id name", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -757,10 +757,10 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) {
+      emit( /*ev*/ ) {
       }
 
       _killcalls( callbacks, agentcall ) {
@@ -781,7 +781,7 @@ describe( "interface enterprisescenarios.js", function() {
       }
     }
 
-    let qitem = {
+    const qitem = {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -793,7 +793,7 @@ describe( "interface enterprisescenarios.js", function() {
     }
 
     /* now back to our inbound call */
-    let reason = await mainfifo.queue( qitem )
+    const reason = await mainfifo.queue( qitem )
 
     expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
     expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
@@ -801,8 +801,8 @@ describe( "interface enterprisescenarios.js", function() {
     expect( reason ).to.equal( "timeout" )
 
     /* ensure the calls are split between agents */
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1000@dummy.com" ).length ).to.be.within( 23, 28 )
-    expect( mockagentcall.agenturicalls.filter( ( v ) => v === "1001@dummy.com" ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1000@dummy.com" === v ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1001@dummy.com" === v ).length ).to.be.within( 23, 28 )
 
     expect( mockinboundcall.lastoptions.callerid.name ).to.equal( "Queue" )
 

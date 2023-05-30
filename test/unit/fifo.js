@@ -15,16 +15,16 @@ describe( "unit fifo.js", function() {
     dialog.reset()
   } )
 
-  it( `Queue a ringall - no agents`, async function() {
-    let f = fifo.create()
+  it( "Queue a ringall - no agents", async function() {
+    const f = fifo.create()
 
     /* mocks */
-    let call = {
+    const call = {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
-      "off": ( e, cb ) => {},
-      "emit": ( ev ) => {},
+      "off": ( /*e, cb*/ ) => {},
+      "emit": ( /*ev*/ ) => {},
       "vars": {}
     }
 
@@ -44,15 +44,15 @@ describe( "unit fifo.js", function() {
   } )
 
 
-  it( `Queue a ringall - 2 agents`, async function() {
+  it( "Queue a ringall - 2 agents", async function() {
     /*
     Add agents but don't supply a registrar so it will fail - we
     should still queue and clean up well on hangup. This should finish
     cleanly without leaving unresolved promises/timers.
     */
-    let f = fifo.create()
+    const f = fifo.create()
 
-    let agentinfo = [ {
+    const agentinfo = [ {
       "uri": "1000@dummy.com",
       "fifos": new Set(),
       "state": "available",
@@ -68,12 +68,12 @@ describe( "unit fifo.js", function() {
     f.addagent( "1001@dummy.com", agentinfo[ 1 ] )
 
     /* mocks */
-    let call = {
+    const call = {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
-      "off": ( e, cb ) => {},
-      "emit": ( ev ) => {},
+      "off": ( /*e, cb*/ ) => {},
+      "emit": ( /*ev*/ ) => {},
       "vars": {}
     }
 
@@ -86,10 +86,10 @@ describe( "unit fifo.js", function() {
 
   } )
 
-  it( `add an agent`, async function() {
-    let f = fifo.create()
+  it( "add an agent", async function() {
+    const f = fifo.create()
 
-    let agentinfo = {
+    const agentinfo = {
       "fifos": new Set()
     }
 
@@ -99,10 +99,10 @@ describe( "unit fifo.js", function() {
     expect( agentinfo.fifos.size ).to.equal( 1 )
   } )
 
-  it( `delete an agent`, async function() {
-    let f = fifo.create()
+  it( "delete an agent", async function() {
+    const f = fifo.create()
 
-    let agentinfo = [ {
+    const agentinfo = [ {
       "uri": "1000@dummy.com",
       "fifos": new Set(),
       "state": "available",
@@ -128,10 +128,10 @@ describe( "unit fifo.js", function() {
     expect( f._agents ).to.have.property( "1001@dummy.com" )
   } )
 
-  it ( `has agent`, async function() {
-    let f = fifo.create()
+  it ( "has agent", async function() {
+    const f = fifo.create()
 
-    let agentinfo = [ {
+    const agentinfo = [ {
       "uri": "1000@dummy.com",
       "fifos": new Set(),
       "state": "available",
@@ -158,29 +158,29 @@ describe( "unit fifo.js", function() {
     expect( f.hasagent( "1003@dummy.com" ) ).to.be.false
   } )
 
-  it( `Create object`, async function() {
-    let f = fifo.create()
+  it( "Create object", async function() {
+    const f = fifo.create()
     expect( f ).to.have.property( "_fifos" ).that.is.a( "Array" )
   } )
 
-  it( `Queue a ringall - 2 agents and registrar then abandon`, async function() {
+  it( "Queue a ringall - 2 agents and registrar then abandon", async function() {
     /*
     Add agents but don't supply a registrar so it will fail - we
     should still queue and clean up well on hangup. This should finish
     cleanly without leaving unresolved promises/timers.
     */
-    let options = {
+    const options = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10000
     }
 
-    let f = fifo.create( options )
+    const f = fifo.create( options )
 
     options.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     options.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
 
-    let agentinfo = [ {
+    const agentinfo = [ {
       "uri": "1000@dummy.com",
       "fifos": new Set(),
       "state": "available",
@@ -196,20 +196,20 @@ describe( "unit fifo.js", function() {
     f.addagent( "1001@dummy.com", agentinfo[ 1 ] )
 
     /* mocks */
-    let call = {
+    const call = {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
-      "off": ( e, cb ) => {},
-      "emit": ( ev ) => {},
+      "off": ( /*e, cb*/ ) => {},
+      "emit": ( /*ev*/ ) => {},
       "vars": {}
     }
 
-    let waiting = f.queue( { call } )
+    const waiting = f.queue( { call } )
 
     call._em.emit( "call.destroyed", call )
 
-    let reason = await waiting
+    const reason = await waiting
 
     expect( call.vars.fifo.epochs.enter ).to.be.a( "number" ).to.be.above( 0 )
     expect( call.vars.fifo.epochs.leave ).to.be.a( "number" ).to.be.above( 0 )
@@ -217,7 +217,7 @@ describe( "unit fifo.js", function() {
     expect( reason ).to.equal( "abandoned" )
   } )
 
-  it( `Queue a ringall - 2 agents and registrar multiple call attempts plus final timeout`, async function() {
+  it( "Queue a ringall - 2 agents and registrar multiple call attempts plus final timeout", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
@@ -227,19 +227,19 @@ describe( "unit fifo.js", function() {
     should still queue and clean up well on hangup. This should finish
     cleanly without leaving unresolved promises/timers.
     */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let f = fifo.create( globaloptions )
+    const f = fifo.create( globaloptions )
 
     globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
 
-    let mockagentinfo = [ {
+    const mockagentinfo = [ {
       "uri": "1000@dummy.com",
       "fifos": new Set(),
       "state": "available",
@@ -269,38 +269,38 @@ describe( "unit fifo.js", function() {
       }
     }
 
-    let mockagentcalls = [
+    const mockagentcalls = [
       new mockagentcall( "1000@dummy.com" ),
       new mockagentcall( "1001@dummy.com" )
     ]
 
-    let mockagentindex = {
+    const mockagentindex = {
       "1000@dummy.com": 0,
       "1001@dummy.com": 1
     }
 
     let newcallcount = 0
 
-    let mockinboundcall = {
+    const mockinboundcall = {
       "uuid": "1",
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => mockinboundcall._em.on( e, cb ),
-      "off": ( e, cb ) => {},
-      "emit": ( ev ) => {},
+      "off": ( /*e, cb*/ ) => {},
+      "emit": ( /*ev*/ ) => {},
       "vars": {},
       "newuac": function ( options, callbacks ) {
         newcallcount++
 
-        let agentcall = mockagentcalls[ newcallcount % 2 ]
+        const agentcall = mockagentcalls[ newcallcount % 2 ]
         callbacks.early( agentcall )
 
         setTimeout( () => {
           agentcall._em.emit( "call.destroyed", agentcall )
           /* this is called by our main module code so is mocked from that code */
           setTimeout( async () => {
-            let entity = await agentcall.entity
+            const entity = await agentcall.entity
 
-            let mockagenti = mockagentinfo[ mockagentindex[ entity.uri ] ]
+            const mockagenti = mockagentinfo[ mockagentindex[ entity.uri ] ]
             
             mockagenti.callcount--
             if( 0 === mockagenti.callcount ) {
@@ -314,9 +314,9 @@ describe( "unit fifo.js", function() {
       }
     }
 
-    let waiting = f.queue( { "call": mockinboundcall, "timeout": 1 } )
+    const waiting = f.queue( { "call": mockinboundcall, "timeout": 1 } )
     f._callagents() /* this is handled in our domain object - so this is not needed in real implimentation */
-    let reason = await waiting
+    const reason = await waiting
     /*
       The timing happens mostly in this test, however, this ensures agents are added back
       and all logic in the fifo is working.

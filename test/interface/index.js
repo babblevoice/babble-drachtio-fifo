@@ -1,20 +1,15 @@
 
 const expect = require( "chai" ).expect
-const events = require( "events" )
 const fifo = require( "../../index.js" )
 
-const registrar = require( "../mock/registrar.js" )
-const srf = require( "../mock/srf.js" )
-
-
 describe( "interface index.js", function() {
-  it( `create main fifo`, async function() {
-    let options = {
+  it( "create main fifo", async function() {
+    const options = {
       "srf": {},
       "agentlag": 10 /* mS - test */
     }
 
-    let mainfifo = fifo.create( options )
+    const mainfifo = fifo.create( options )
 
     /* private members */
     expect( mainfifo ).to.be.a( "object" ).to.have.property( "_options" )
@@ -23,16 +18,16 @@ describe( "interface index.js", function() {
     expect( mainfifo ).to.be.a( "object" ).to.have.property( "_agentlag" ).to.equal( 10 )
   } )
 
-  it( `add agent to a fifo`, async function() {
+  it( "add agent to a fifo", async function() {
 
-    let options = {
+    const options = {
       "srf": {},
       "agentlag": 10 /* mS - test */
     }
 
-    let mainfifo = fifo.create( options )
+    const mainfifo = fifo.create( options )
     
-    let agentinfo = { 
+    const agentinfo = { 
       "name": "testfifo",
       "domain": "dummy.com",
       "agent": "1000@dummy.com"
@@ -42,21 +37,21 @@ describe( "interface index.js", function() {
 
     expect( mainfifo._allagents.size ).to.equal( 1 )
 
-    let privateagentinfo = mainfifo._allagents.get( "1000@dummy.com" )
+    const privateagentinfo = mainfifo._allagents.get( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
     expect( privateagentinfo.fifos.size ).to.equal( 1 ) /* a member of one fifo */
 
   } )
 
-  it( `add agents to a fifo`, async function() {
+  it( "add agents to a fifo", async function() {
 
-    let options = {
+    const options = {
       "srf": {},
       "agentlag": 10 /* mS - test */
     }
 
-    let mainfifo = fifo.create( options )
+    const mainfifo = fifo.create( options )
 
     mainfifo.addagents( { 
       "name": "testfifo",
@@ -66,21 +61,21 @@ describe( "interface index.js", function() {
 
     expect( mainfifo._allagents.size ).to.equal( 2 )
 
-    let privateagentinfo = mainfifo._allagents.get( "1000@dummy.com" )
+    const privateagentinfo = mainfifo._allagents.get( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
     expect( privateagentinfo.fifos.size ).to.equal( 1 ) /* a member of one fifo */
 
   } )
 
-  it( `add agents in multiple domains to fifos`, async function() {
+  it( "add agents in multiple domains to fifos", async function() {
 
-    let options = {
+    const options = {
       "srf": {},
       "agentlag": 10 /* mS - test */
     }
 
-    let mainfifo = fifo.create( options )
+    const mainfifo = fifo.create( options )
 
     mainfifo.addagents( { 
       "name": "testfifo",
@@ -113,14 +108,14 @@ describe( "interface index.js", function() {
 
   } )
 
-  it( `delete an agent in multiple domains to fifos`, async function() {
+  it( "delete an agent in multiple domains to fifos", async function() {
 
-    let options = {
+    const options = {
       "srf": {},
       "agentlag": 10 /* mS - test */
     }
 
-    let mainfifo = fifo.create( options )
+    const mainfifo = fifo.create( options )
 
     mainfifo.addagents( { 
       "name": "testfifo",
@@ -159,13 +154,13 @@ describe( "interface index.js", function() {
 
   } )
 
-  it( `replace all agents by calling sync function`, async function() {
-    let options = {
+  it( "replace all agents by calling sync function", async function() {
+    const options = {
       "srf": {},
       "agentlag": 10 /* mS - test */
     }
 
-    let mainfifo = fifo.create( options )
+    const mainfifo = fifo.create( options )
 
     mainfifo.addagents( { 
       "name": "fifotest",

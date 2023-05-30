@@ -10,12 +10,12 @@ class srf {
   async createUac( contact, uacoptions, progress ) {
 
     let r, re
-    let promise = new Promise( ( resolve, reject ) => {
+    const promise = new Promise( ( resolve, reject ) => {
       r = resolve
       re = reject
     } )
 
-    let invitereq = req.create()
+    const invitereq = req.create()
     invitereq.mockoncancel( () => {
       re( { "status": 487 } )
     } )

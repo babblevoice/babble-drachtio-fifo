@@ -7,20 +7,20 @@ const srf = require( "../mock/srf.js" )
 
 
 describe( "interface scenarios.js", function() {
-  it( `main ringall queue 1 call`, async function() {
+  it( "main ringall queue 1 call", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -68,10 +68,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) { 
+      emit( /*ev*/ ) { 
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -91,7 +91,7 @@ describe( "interface scenarios.js", function() {
       }
     }
 
-    let qitem = {
+    const qitem = {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -100,7 +100,7 @@ describe( "interface scenarios.js", function() {
     }
 
     /* now back to our inbound call */
-    let reason = await mainfifo.queue( qitem )
+    const reason = await mainfifo.queue( qitem )
 
     expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
     expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
@@ -109,20 +109,20 @@ describe( "interface scenarios.js", function() {
 
   } )
 
-  it( `main ringall queue 2 calls`, async function() {
+  it( "main ringall queue 2 calls", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -170,10 +170,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) {
+      emit( /*ev*/ ) {
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -193,7 +193,7 @@ describe( "interface scenarios.js", function() {
       }
     }
 
-    let qitems = [ {
+    const qitems = [ {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -208,13 +208,13 @@ describe( "interface scenarios.js", function() {
     } ]
 
     /* now back to our inbound call */
-    let waitforfirst = mainfifo.queue( qitems[ 0 ] )
-    let waitforsecond = mainfifo.queue( qitems[ 1 ] )
+    const waitforfirst = mainfifo.queue( qitems[ 0 ] )
+    const waitforsecond = mainfifo.queue( qitems[ 1 ] )
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 2 )
     
-    let reason = await waitforfirst
-    let reason2 = await waitforsecond
+    const reason = await waitforfirst
+    const reason2 = await waitforsecond
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 0 )
 
@@ -226,19 +226,19 @@ describe( "interface scenarios.js", function() {
 
   } )
 
-  it( `main ringall queue 2 answer 1`, async function() {
+  it( "main ringall queue 2 answer 1", async function() {
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -297,10 +297,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) {
+      emit( /*ev*/ ) {
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -320,7 +320,7 @@ describe( "interface scenarios.js", function() {
       }
     }
 
-    let qitems = [ {
+    const qitems = [ {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -335,8 +335,8 @@ describe( "interface scenarios.js", function() {
     } ]
 
     /* now back to our inbound call */
-    let waitforfirst = mainfifo.queue( qitems[ 0 ] )
-    let waitforsecond = mainfifo.queue( qitems[ 1 ] )
+    const waitforfirst = mainfifo.queue( qitems[ 0 ] )
+    const waitforsecond = mainfifo.queue( qitems[ 1 ] )
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 2 )
 
@@ -344,8 +344,8 @@ describe( "interface scenarios.js", function() {
       mockagentcall.lastcreated.answer()
     }, 200 )
     
-    let reason = await waitforfirst
-    let reason2 = await waitforsecond
+    const reason = await waitforfirst
+    const reason2 = await waitforsecond
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 0 )
 
@@ -356,19 +356,19 @@ describe( "interface scenarios.js", function() {
     expect( reason2 ).to.equal( "timeout" )
   } )
 
-  it( `main ringall queue 2 answer 2`, async function() {
+  it( "main ringall queue 2 answer 2", async function() {
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -427,10 +427,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) {
+      emit( /*ev*/ ) {
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -450,7 +450,7 @@ describe( "interface scenarios.js", function() {
       }
     }
 
-    let qitems = [ {
+    const qitems = [ {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -465,8 +465,8 @@ describe( "interface scenarios.js", function() {
     } ]
 
     /* now back to our inbound call */
-    let waitforfirst = mainfifo.queue( qitems[ 0 ] )
-    let waitforsecond = mainfifo.queue( qitems[ 1 ] )
+    const waitforfirst = mainfifo.queue( qitems[ 0 ] )
+    const waitforsecond = mainfifo.queue( qitems[ 1 ] )
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 2 )
 
@@ -478,8 +478,8 @@ describe( "interface scenarios.js", function() {
       mockagentcall.lastcreated.answer()
     }, 600 )
     
-    let reason = await waitforfirst
-    let reason2 = await waitforsecond
+    const reason = await waitforfirst
+    const reason2 = await waitforsecond
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 0 )
 
@@ -496,19 +496,19 @@ describe( "interface scenarios.js", function() {
     expect( reason2 ).to.equal( "confirm" )
   } )
 
-  it( `main ringall queue 2 abandon 1`, async function() {
+  it( "main ringall queue 2 abandon 1", async function() {
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     mainfifo.agents( {
       "domain": "dummy.com",
@@ -579,7 +579,7 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
       emit( ev ) {
@@ -617,7 +617,7 @@ describe( "interface scenarios.js", function() {
       }
     }
 
-    let qitems = [ {
+    const qitems = [ {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -632,15 +632,15 @@ describe( "interface scenarios.js", function() {
     } ]
 
     /* now back to our inbound call */
-    let waitforfirst = mainfifo.queue( qitems[ 0 ] )
-    let waitforsecond = mainfifo.queue( qitems[ 1 ] )
+    const waitforfirst = mainfifo.queue( qitems[ 0 ] )
+    const waitforsecond = mainfifo.queue( qitems[ 1 ] )
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 2 )
 
     qitems[ 0 ].call.mockhangupafter( 300 )
     
-    let reason = await waitforfirst
-    let reason2 = await waitforsecond
+    const reason = await waitforfirst
+    const reason2 = await waitforsecond
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 0 )
 
@@ -660,20 +660,20 @@ describe( "interface scenarios.js", function() {
   } )
 
 
-  it( `main ringall queue a call then add agent`, async function() {
+  it( "main ringall queue a call then add agent", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     /* setup our mock interfaces */
     globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
@@ -715,10 +715,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) { 
+      emit( /*ev*/ ) { 
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -738,7 +738,7 @@ describe( "interface scenarios.js", function() {
       }
     }
 
-    let qitem = {
+    const qitem = {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -755,7 +755,7 @@ describe( "interface scenarios.js", function() {
     }, 1 )
 
     /* now back to our inbound call */
-    let reason = await mainfifo.queue( qitem )
+    const reason = await mainfifo.queue( qitem )
 
     expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
     expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
@@ -764,20 +764,20 @@ describe( "interface scenarios.js", function() {
 
   } )
 
-  it( `main ringall queue a call then remove agent`, async function() {
+  it( "main ringall queue a call then remove agent", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
 
     /* create a global fifo object */
-    let globaloptions = {
+    const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10
     }
 
-    let mainfifo = fifo.create( globaloptions )
+    const mainfifo = fifo.create( globaloptions )
 
     /* setup our mock interfaces */
     globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
@@ -819,10 +819,10 @@ describe( "interface scenarios.js", function() {
         this._em.on( e, cb )
       }
 
-      off( e, cb ) {
+      off( /*e, cb*/ ) {
       }
 
-      emit( ev ) { 
+      emit( /*ev*/ ) { 
       }
 
       _killcalls( options, callbacks, agentcall ) {
@@ -842,7 +842,7 @@ describe( "interface scenarios.js", function() {
       }
     }
 
-    let qitem = {
+    const qitem = {
       "call": new mockinboundcall(),
       "name": "fifoname",
       "domain": "dummy.com",
@@ -865,7 +865,7 @@ describe( "interface scenarios.js", function() {
     }, 1 )
 
     /* now back to our inbound call */
-    let reason = await mainfifo.queue( qitem )
+    const reason = await mainfifo.queue( qitem )
 
     expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
     expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
