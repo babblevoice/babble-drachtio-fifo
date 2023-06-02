@@ -175,7 +175,7 @@ class fifos {
 
     if( this._allagents.has( options.agent ) ) {
       const ouragent = this._allagents.get( options.agent )
-      if( options.agentlag ) ouragent.agentlag = options.agentlag
+      if( undefined != options.agentlag ) ouragent.agentlag = options.agentlag
       d.addagent( options, ouragent )
     } else {
 
