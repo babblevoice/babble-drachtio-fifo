@@ -279,6 +279,14 @@ class fifos {
   }
 
   /**
+   * 
+   * @return { Array< any > }
+   */
+  getdomains() {
+    return [ ...this._domains.keys() ]
+  }
+
+  /**
   Shortcut to create fifos.
   */
   static create( options ) {
