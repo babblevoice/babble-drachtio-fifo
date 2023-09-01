@@ -89,7 +89,7 @@ class fifos {
       /* We know who it is and they have no other calls */
       if( this._allagents.has( entity.uri ) ) {
         const agent = this._allagents.get( entity.uri )
-        if( "ringing" === agent.state || "busy" === agent.state ) {
+        if( "available" == agent.state || "ringing" === agent.state || "busy" === agent.state ) {
           agent.state = "resting"
           setTimeout( () => {
             agent.state = "available"
@@ -180,7 +180,8 @@ class fifos {
     } else {
 
       let lag = this._agentlag
-      if( options.agentlag ) lag = options.agentlag
+      const optionsagentlag = parseInt( options.agentlag )
+      if( !isNaN( optionsagentlag ) ) lag = optionsagentlag
 
       const ouragent = {
         "uri": options.agent,
