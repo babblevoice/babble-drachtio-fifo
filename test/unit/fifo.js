@@ -16,7 +16,7 @@ describe( "unit fifo.js", function() {
   } )
 
   it( "Queue a ringall - no agents", async function() {
-    const f = fifo.create()
+    const f = fifo.create( "", {}, { _onqueueing: () => {} } )
 
     /* mocks */
     const call = {
@@ -50,7 +50,7 @@ describe( "unit fifo.js", function() {
     should still queue and clean up well on hangup. This should finish
     cleanly without leaving unresolved promises/timers.
     */
-    const f = fifo.create()
+    const f = fifo.create( "", {}, { _onqueueing: () => {} } )
 
     const agentinfo = [ {
       "uri": "1000@dummy.com",
@@ -87,7 +87,7 @@ describe( "unit fifo.js", function() {
   } )
 
   it( "add an agent", async function() {
-    const f = fifo.create()
+    const f = fifo.create( "", {}, { _onqueueing: () => {} } )
 
     const agentinfo = {
       "fifos": new Set()
@@ -100,7 +100,7 @@ describe( "unit fifo.js", function() {
   } )
 
   it( "delete an agent", async function() {
-    const f = fifo.create()
+    const f = fifo.create( "", {}, { _onqueueing: () => {} } )
 
     const agentinfo = [ {
       "uri": "1000@dummy.com",
@@ -129,7 +129,7 @@ describe( "unit fifo.js", function() {
   } )
 
   it ( "has agent", async function() {
-    const f = fifo.create()
+    const f = fifo.create( "", {}, { _onqueueing: () => {} } )
 
     const agentinfo = [ {
       "uri": "1000@dummy.com",
@@ -159,7 +159,7 @@ describe( "unit fifo.js", function() {
   } )
 
   it( "Create object", async function() {
-    const f = fifo.create()
+    const f = fifo.create( "", {}, { _onqueueing: () => {} } )
     expect( f ).to.have.property( "_fifos" ).that.is.a( "Array" )
   } )
 
@@ -175,7 +175,7 @@ describe( "unit fifo.js", function() {
       "uactimeout": 10000
     }
 
-    const f = fifo.create( options )
+    const f = fifo.create( "", options, { _onqueueing: () => {} } )
 
     options.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     options.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
@@ -234,7 +234,7 @@ describe( "unit fifo.js", function() {
       "agentlag": 10
     }
 
-    const f = fifo.create( globaloptions )
+    const f = fifo.create( "", globaloptions, { _onqueueing: () => {} } )
 
     globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
