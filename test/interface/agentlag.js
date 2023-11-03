@@ -9,7 +9,7 @@ const srf = require( "../mock/srf.js" )
 describe( "interface agentlag.js", function() {
   /* move the agent lag into the agent definition */
 
-  it( "main enterprise queue 1 call", async function() {
+  it( "main enterprise queue 1 call agentlag", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
@@ -41,7 +41,14 @@ describe( "interface agentlag.js", function() {
         this.uri = uri
         this._em = new events.EventEmitter()
         mockagentcall.agenturicalls.push( uri )
+
+        this.hangupcodes = {
+          REQUEST_TIMEOUT: "REQUEST_TIMEOUT"
+        }
       }
+
+      hangup() {}
+
       get entity() {
         return ( async () => {
           return {
@@ -132,6 +139,8 @@ describe( "interface agentlag.js", function() {
 
     const mainfifo = fifo.create( globaloptions )
 
+    let hangupcode
+
     mainfifo.agents( {
       "domain": "dummy.com",
       "name": "fifoname",
@@ -150,6 +159,10 @@ describe( "interface agentlag.js", function() {
         this.uri = uri
         this._em = new events.EventEmitter()
         mockagentcall.agenturicalls.push( uri )
+
+        this.hangupcodes = {
+          REQUEST_TIMEOUT: "REQUEST_TIMEOUT"
+        }
       }
       get entity() {
         return ( async () => {
@@ -159,6 +172,8 @@ describe( "interface agentlag.js", function() {
           }
         } )()
       }
+
+      hangup() {}
 
       on( ev, cb ) {
         this._em.on( ev, cb )
