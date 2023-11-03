@@ -32,6 +32,7 @@ describe( "interface enterprisescenarios.js", function() {
     globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
 
+    let hangupcode
     class mockagentcall {
 
       static agenturicalls = []
@@ -39,7 +40,14 @@ describe( "interface enterprisescenarios.js", function() {
         this.uri = uri
         this._em = new events.EventEmitter()
         mockagentcall.agenturicalls.push( uri )
+
+        this.hangupcodes = {
+          USER_GONE: "USER_GONE"
+        }
       }
+
+      hangup() {}
+
       get entity() {
         return ( async () => {
           return {
@@ -79,7 +87,6 @@ describe( "interface enterprisescenarios.js", function() {
 
       _killcalls( callbacks, agentcall ) {
         callbacks.early( agentcall )
-
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
           agentcall._em.emit( "call.destroyed", agentcall )
@@ -141,6 +148,7 @@ describe( "interface enterprisescenarios.js", function() {
     globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
 
+    let hangupcode
     class mockagentcall {
 
       static agenturicalls = []
@@ -148,7 +156,14 @@ describe( "interface enterprisescenarios.js", function() {
         this.uri = uri
         this._em = new events.EventEmitter()
         mockagentcall.agenturicalls.push( uri )
+
+        this.hangupcodes = {
+          USER_GONE: "USER_GONE"
+        }
       }
+
+      hangup() {}
+
       get entity() {
         return ( async () => {
           return {
@@ -289,9 +304,12 @@ describe( "interface enterprisescenarios.js", function() {
         /* types we can request */
         this.hangupcodes = {
           "LOSE_RACE": "LOSE_RACE",
-          "REQUEST_TIMEOUT": "REQUEST_TIMEOUT"
+          "REQUEST_TIMEOUT": "REQUEST_TIMEOUT",
+          "USER_GONE": "USER_GONE"
         }
       }
+
+      hangup() {}
 
       get entity() {
         return ( async () => {
@@ -451,9 +469,12 @@ describe( "interface enterprisescenarios.js", function() {
         /* types we can request */
         this.hangupcodes = {
           "LOSE_RACE": "LOSE_RACE",
-          "REQUEST_TIMEOUT": "REQUEST_TIMEOUT"
+          "REQUEST_TIMEOUT": "REQUEST_TIMEOUT",
+          "USER_GONE": "USER_GONE"
         }
       }
+
+      hangup() {}
 
       get entity() {
         return ( async () => {
@@ -608,7 +629,15 @@ describe( "interface enterprisescenarios.js", function() {
         this.uri = uri
         this._em = new events.EventEmitter()
         mockagentcall.agenturicalls.push( uri )
+
+        this.hangupcodes = {
+          REQUEST_TIMEOUT: "REQUEST_TIMEOUT",
+          USER_GONE: "USER_GONE"
+        }
       }
+
+      hangup() {}
+
       get entity() {
         return ( async () => {
           return {
@@ -724,7 +753,12 @@ describe( "interface enterprisescenarios.js", function() {
         this.uri = uri
         this._em = new events.EventEmitter()
         mockagentcall.agenturicalls.push( uri )
+
+        this.hangupcodes = {
+          REQUEST_TIMEOUT: "REQUEST_TIMEOUT"
+        }
       }
+
       get entity() {
         return ( async () => {
           return {
@@ -733,6 +767,8 @@ describe( "interface enterprisescenarios.js", function() {
           }
         } )()
       }
+
+      hangup() {}
 
       on( ev, cb ) {
         this._em.on( ev, cb )
