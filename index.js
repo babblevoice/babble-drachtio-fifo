@@ -80,7 +80,7 @@ class fifos {
 
   /**
   Called by callmanager event emitter
-  @param { call } call - our call object
+  @param { object } call - our call object
   @private 
   */
   async _onentitymightbefree( call ) {
@@ -89,6 +89,7 @@ class fifos {
       /* We know who it is and they have no other calls */
       if( this._allagents.has( entity.uri ) ) {
         const agent = this._allagents.get( entity.uri )
+
         if( "available" == agent.state || "ringing" === agent.state || "busy" === agent.state ) {
           agent.state = "resting"
           setTimeout( () => {
@@ -115,7 +116,7 @@ class fifos {
 
   /**
   Called by callmanager event emitter
-  @param { call } call - our call object
+  @param { object } call - our call object
   @private 
   */
   async _onentitybusy( call ) {
@@ -130,7 +131,7 @@ class fifos {
   /**
   Queue a call with options
   @param { object } options
-  @param { call } options.call
+  @param { object } options.call
   @param { string } options.name - the name of the queue
   @param { string } options.domain - the domain for the queue
   @param { number } [ options.timeout = 3600 ] - the max time to hold the call in the queue
@@ -180,8 +181,8 @@ class fifos {
     } else {
 
       let lag = this._agentlag
-      const optionsagentlag = parseInt( options.agentlag )
-      if( !isNaN( optionsagentlag ) ) lag = optionsagentlag
+      if( "agentlag" in options ) lag = options.agentlag
+      if( typeof lag !== "number" ) lag = this._agentlag
 
       const ouragent = {
         "uri": options.agent,
