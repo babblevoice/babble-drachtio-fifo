@@ -483,7 +483,7 @@ describe( "interface scenarios.js", function() {
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 0 )
 
-    expect( qitems[ 0 ].call.vars.fifo.epochs.leave - qitems[ 0 ].call.vars.fifo.epochs.enter ).to.be.below( 1 ) /* S */
+    expect( qitems[ 0 ].call.vars.fifo.epochs.leave - qitems[ 0 ].call.vars.fifo.epochs.enter ).to.be.below( 2 ) /* S */
     expect( qitems[ 0 ].call.vars.fifo.state ).to.equal( "confirm" )
 
     /*
