@@ -240,6 +240,8 @@ class fifos {
         "agent": agent
       } )
     }
+
+    f.stats()
   }
 
   /**
@@ -277,6 +279,7 @@ class fifos {
 
     const newdomain = domain.create( this._options )
     this._domains.set( domainname, newdomain )
+    newdomain.name = domainname
     return newdomain
   }
 
