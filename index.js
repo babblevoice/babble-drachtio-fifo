@@ -90,12 +90,16 @@ class fifos {
       if( this._allagents.has( entity.uri ) ) {
         const agent = this._allagents.get( entity.uri )
 
+        let timeout = agent.agentlag
+        if ( "NORMAL_CLEARING" == call.hangup_cause )
+          timeout = 1000
+
         if( "available" == agent.state || "ringing" === agent.state || "busy" === agent.state ) {
           agent.state = "resting"
           setTimeout( () => {
             agent.state = "available"
             this._callagents( agent )
-          }, agent.agentlag )
+          }, timeout )
         }
       }
     }
