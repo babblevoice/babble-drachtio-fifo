@@ -91,8 +91,9 @@ class fifos {
         const agent = this._allagents.get( entity.uri )
 
         let timeout = agent.agentlag
-        if ( "NORMAL_CLEARING" != call.hangup_cause || "BLIND_TRANSFER " != call.hangup_cause
-            || "ATTENDED_TRANSFER" != call.hangup_cause) {
+        const reason = call.hangup_cause.reason
+        if ( "NORMAL_CLEARING" != reason && "BLIND_TRANSFER" != reason
+            && "ATTENDED_TRANSFER" != reason ) {
           timeout = Math.min( agent.agentlag, 1000 )
         }
 
