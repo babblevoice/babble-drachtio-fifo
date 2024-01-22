@@ -46,6 +46,10 @@ describe( "interface scenarios.js", function() {
         } )()
       }
 
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
       on( ev, cb ) {
         this._em.on( ev, cb )
       }
@@ -58,6 +62,10 @@ describe( "interface scenarios.js", function() {
 
         this._em = new events.EventEmitter()
         this.vars = {}
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
 
       }
 
@@ -79,6 +87,7 @@ describe( "interface scenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -148,6 +157,10 @@ describe( "interface scenarios.js", function() {
         } )()
       }
 
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
       on( ev, cb ) {
         this._em.on( ev, cb )
       }
@@ -160,6 +173,10 @@ describe( "interface scenarios.js", function() {
 
         this._em = new events.EventEmitter()
         this.vars = {}
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
 
       }
 
@@ -181,6 +198,7 @@ describe( "interface scenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -271,6 +289,10 @@ describe( "interface scenarios.js", function() {
         } )()
       }
 
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
       on( ev, cb ) {
         this._em.on( ev, cb )
       }
@@ -287,6 +309,10 @@ describe( "interface scenarios.js", function() {
 
         this._em = new events.EventEmitter()
         this.vars = {}
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
 
       }
 
@@ -308,6 +334,7 @@ describe( "interface scenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -392,6 +419,10 @@ describe( "interface scenarios.js", function() {
         mockagentcall.lastcreated = this /* parent is mockinboundcall */
       }
 
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
       get entity() {
         return ( async () => {
           return {
@@ -418,6 +449,10 @@ describe( "interface scenarios.js", function() {
         this._em = new events.EventEmitter()
         this.vars = {}
 
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
+
       }
 
       static inboundcallcount = 0
@@ -438,6 +473,7 @@ describe( "interface scenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -538,6 +574,10 @@ describe( "interface scenarios.js", function() {
         }
       }
 
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
       get entity() {
         return ( async () => {
           return {
@@ -570,6 +610,10 @@ describe( "interface scenarios.js", function() {
 
         this.mockfifoupdates = 0
         this.mockfifopositions = []
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
       }
 
       static inboundcallcount = 0
@@ -594,6 +638,7 @@ describe( "interface scenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -693,6 +738,10 @@ describe( "interface scenarios.js", function() {
         } )()
       }
 
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
       on( ev, cb ) {
         this._em.on( ev, cb )
       }
@@ -705,6 +754,10 @@ describe( "interface scenarios.js", function() {
 
         this._em = new events.EventEmitter()
         this.vars = {}
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
 
       }
 
@@ -726,6 +779,7 @@ describe( "interface scenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -797,6 +851,11 @@ describe( "interface scenarios.js", function() {
         } )()
       }
 
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
+
       on( ev, cb ) {
         this._em.on( ev, cb )
       }
@@ -809,6 +868,10 @@ describe( "interface scenarios.js", function() {
 
         this._em = new events.EventEmitter()
         this.vars = {}
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
 
       }
 
@@ -830,6 +893,7 @@ describe( "interface scenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           

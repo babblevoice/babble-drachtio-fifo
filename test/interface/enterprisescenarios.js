@@ -46,7 +46,9 @@ describe( "interface enterprisescenarios.js", function() {
         }
       }
 
-      hangup() {}
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
 
       get entity() {
         return ( async () => {
@@ -70,6 +72,10 @@ describe( "interface enterprisescenarios.js", function() {
         this._em = new events.EventEmitter()
         this.vars = {}
 
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
+
       }
 
       static inboundcallcount = 0
@@ -89,6 +95,7 @@ describe( "interface enterprisescenarios.js", function() {
         callbacks.early( agentcall )
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -162,7 +169,9 @@ describe( "interface enterprisescenarios.js", function() {
         }
       }
 
-      hangup() {}
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
 
       get entity() {
         return ( async () => {
@@ -188,6 +197,10 @@ describe( "interface enterprisescenarios.js", function() {
 
         this.mockfifoupdates = 0
         this.mockfifopositions = []
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
       }
 
       static inboundcallcount = 0
@@ -212,6 +225,7 @@ describe( "interface enterprisescenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -309,7 +323,14 @@ describe( "interface enterprisescenarios.js", function() {
         }
       }
 
-      hangup() {}
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
+      bond( parent ) {
+        /* should be bonding not adopting - but store for test */
+        this.parent = parent
+      }
 
       get entity() {
         return ( async () => {
@@ -328,8 +349,9 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( ev, cb )
       }
 
-      answer() {
-        this._callbacks.confirm( this )
+      async answer() {
+        const cookie = await this._callbacks.prebridge( this )
+        this._callbacks.confirm( this, cookie )
       }
     }
 
@@ -343,6 +365,10 @@ describe( "interface enterprisescenarios.js", function() {
 
         this.mockfifoupdates = 0
         this.mockfifopositions = []
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
       }
 
       static inboundcallcount = 0
@@ -366,7 +392,9 @@ describe( "interface enterprisescenarios.js", function() {
         callbacks.early( agentcall )
 
         setTimeout( () => {
+          if( this.adoptcalled ) return
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -474,7 +502,14 @@ describe( "interface enterprisescenarios.js", function() {
         }
       }
 
-      hangup() {}
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
+      bond( parent ) {
+        /* should be bonding not adopting - but store for test */
+        this.parent = parent
+      }
 
       get entity() {
         return ( async () => {
@@ -493,8 +528,9 @@ describe( "interface enterprisescenarios.js", function() {
         this._em.on( ev, cb )
       }
 
-      answer() {
-        this._callbacks.confirm( this )
+      async answer() {
+        const cookie = await this._callbacks.prebridge( this )
+        this._callbacks.confirm( this, cookie )
       }
     }
 
@@ -508,6 +544,10 @@ describe( "interface enterprisescenarios.js", function() {
 
         this.mockfifoupdates = 0
         this.mockfifopositions = []
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
       }
 
       static inboundcallcount = 0
@@ -531,7 +571,9 @@ describe( "interface enterprisescenarios.js", function() {
         callbacks.early( agentcall )
 
         setTimeout( () => {
+          if( this.adoptcalled ) return
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -636,7 +678,14 @@ describe( "interface enterprisescenarios.js", function() {
         }
       }
 
-      hangup() {}
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
+      bond( parent ) {
+        /* should be bonding not adopting - but store for test */
+        this.parent = parent
+      }
 
       get entity() {
         return ( async () => {
@@ -660,6 +709,10 @@ describe( "interface enterprisescenarios.js", function() {
         this._em = new events.EventEmitter()
         this.vars = {}
 
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
+
       }
 
       static inboundcallcount = 0
@@ -681,6 +734,7 @@ describe( "interface enterprisescenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -768,7 +822,9 @@ describe( "interface enterprisescenarios.js", function() {
         } )()
       }
 
-      hangup() {}
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
 
       on( ev, cb ) {
         this._em.on( ev, cb )
@@ -782,6 +838,10 @@ describe( "interface enterprisescenarios.js", function() {
 
         this._em = new events.EventEmitter()
         this.vars = {}
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
 
       }
 
@@ -804,6 +864,7 @@ describe( "interface enterprisescenarios.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
