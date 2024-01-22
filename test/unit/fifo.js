@@ -21,6 +21,7 @@ describe( "unit fifo.js", function() {
     /* mocks */
     const call = {
       "uuid": "1",
+      "hangupcodes": { USER_GONE: "USER_GONE" },
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
       "off": ( /*e, cb*/ ) => {},
@@ -70,6 +71,7 @@ describe( "unit fifo.js", function() {
     /* mocks */
     const call = {
       "uuid": "1",
+      "hangupcodes": { USER_GONE: "USER_GONE" },
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
       "off": ( /*e, cb*/ ) => {},
@@ -198,6 +200,7 @@ describe( "unit fifo.js", function() {
     /* mocks */
     const call = {
       "uuid": "1",
+      "hangupcodes": { USER_GONE: "USER_GONE" },
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => call._em.on( e, cb ),
       "off": ( /*e, cb*/ ) => {},
@@ -283,6 +286,7 @@ describe( "unit fifo.js", function() {
 
     const mockinboundcall = {
       "uuid": "1",
+      "hangupcodes": { SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 } },
       "_em": new events.EventEmitter(),
       "on": ( e, cb ) => mockinboundcall._em.on( e, cb ),
       "off": ( /*e, cb*/ ) => {},
