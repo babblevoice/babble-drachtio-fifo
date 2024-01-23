@@ -17,7 +17,8 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -128,7 +129,8 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -253,7 +255,8 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -392,7 +395,8 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -541,7 +545,8 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -715,7 +720,8 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -828,7 +834,8 @@ describe( "interface scenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
