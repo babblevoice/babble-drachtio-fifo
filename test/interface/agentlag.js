@@ -18,6 +18,7 @@ describe( "interface agentlag.js", function() {
     const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
+      "agentretry": 10,
       "uactimeout": 10 /* mS */
     }
 
@@ -43,13 +44,11 @@ describe( "interface agentlag.js", function() {
         mockagentcall.agenturicalls.push( uri )
 
         this.hangupcodes = {
-          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+          REQUEST_TIMEOUT: "REQUEST_TIMEOUT"
         }
       }
 
-      hangup( reason ) {
-        this.hangup_cause = reason
-      }
+      hangup() {}
 
       get entity() {
         return ( async () => {
@@ -96,7 +95,6 @@ describe( "interface agentlag.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
-          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
@@ -140,6 +138,7 @@ describe( "interface agentlag.js", function() {
     const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
+      "agentretry": 10,
       "uactimeout": 10 /* mS */
     }
 
@@ -167,7 +166,7 @@ describe( "interface agentlag.js", function() {
         mockagentcall.agenturicalls.push( uri )
 
         this.hangupcodes = {
-          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+          REQUEST_TIMEOUT: "REQUEST_TIMEOUT"
         }
       }
       get entity() {
@@ -179,9 +178,7 @@ describe( "interface agentlag.js", function() {
         } )()
       }
 
-      hangup( reason ) {
-        this.hangup_cause = reason
-      }
+      hangup() {}
 
       on( ev, cb ) {
         this._em.on( ev, cb )
@@ -226,7 +223,6 @@ describe( "interface agentlag.js", function() {
 
         setTimeout( () => {
           /* these are emitted by callmanager - in this order */
-          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
           agentcall._em.emit( "call.destroyed", agentcall )
           globaloptions.em.emit( "call.destroyed", agentcall )
           
