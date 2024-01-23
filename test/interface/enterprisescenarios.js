@@ -17,7 +17,8 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -80,6 +81,7 @@ describe( "interface enterprisescenarios.js", function() {
 
       static inboundcallcount = 0
       static newcallcount = 0
+      static last = ""
 
       on( e, cb ) {
         this._em.on( e, cb )
@@ -104,6 +106,8 @@ describe( "interface enterprisescenarios.js", function() {
 
       newuac( options, callbacks ) {
         mockinboundcall.newcallcount++
+        expect( mockinboundcall.last ).to.not.equal( options.entity.uri )
+        mockinboundcall.last = options.entity.uri
         this._killcalls( callbacks, new mockagentcall( options.entity.uri ) )
       }
     }
@@ -130,7 +134,7 @@ describe( "interface enterprisescenarios.js", function() {
 
   } )
 
-  it( "main enterprise queue 2 calls", async function() {
+  it( "main enterprise queue 1 call agent declined", async function() {
 
     this.timeout( 2000 )
     this.slow( 1500 )
@@ -140,7 +144,135 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
+    }
+
+    const mainfifo = fifo.create( globaloptions )
+
+    mainfifo.agents( {
+      "domain": "dummy.com",
+      "name": "fifoname",
+      "agents": [ "1000@dummy.com", "1001@dummy.com" ]
+    } )
+
+    /* setup our mock interfaces */
+    globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
+    globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
+
+    let hangupcode
+    class mockagentcall {
+
+      static agenturicalls = []
+      constructor( uri ) {
+        this.uri = uri
+        this._em = new events.EventEmitter()
+        mockagentcall.agenturicalls.push( uri )
+
+        this.hangupcodes = {
+          USER_GONE: "USER_GONE"
+        }
+      }
+
+      hangup( reason ) {
+        this.hangup_cause = reason
+      }
+
+      get entity() {
+        return ( async () => {
+          return {
+            "uri": this.uri,
+            "ccc": 0 /* our tests ask this when we have finished */
+          }
+        } )()
+      }
+
+      on( ev, cb ) {
+        this._em.on( ev, cb )
+      }
+    }
+
+    class mockinboundcall {
+      constructor() {
+        this.uuid = "" + mockinboundcall.inboundcallcount
+        mockinboundcall.inboundcallcount++
+
+        this._em = new events.EventEmitter()
+        this.vars = {}
+
+        this.hangupcodes = {
+          SERVER_TIMEOUT: { "reason": "SERVER_TIMEOUT", "sip": 504 },
+        }
+
+      }
+
+      static inboundcallcount = 0
+      static newcallcount = 0
+      static last = ""
+
+      on( e, cb ) {
+        this._em.on( e, cb )
+      }
+
+      off( /*e, cb*/ ) {
+      }
+
+      emit( /*ev*/ ) {
+      }
+
+      _killcalls( callbacks, agentcall ) {
+        callbacks.early( agentcall )
+        setTimeout( () => {
+          /* these are emitted by callmanager - in this order */
+          agentcall.hangup( { "reason": "DECLINED", "sip": 603 } )
+          agentcall._em.emit( "call.destroyed", agentcall )
+          globaloptions.em.emit( "call.destroyed", agentcall )
+          
+        }, globaloptions.uactimeout )
+      }
+
+      newuac( options, callbacks ) {
+        mockinboundcall.newcallcount++
+        expect( mockinboundcall.last ).to.not.equal( options.entity.uri )
+        mockinboundcall.last = options.entity.uri
+        this._killcalls( callbacks, new mockagentcall( options.entity.uri ) )
+      }
+    }
+
+    const qitem = {
+      "call": new mockinboundcall(),
+      "name": "fifoname",
+      "domain": "dummy.com",
+      "mode": "enterprise",
+      "timeout": 1
+    }
+
+    /* now back to our inbound call */
+    const reason = await mainfifo.queue( qitem )
+
+    expect( qitem.call.vars.fifo.epochs.leave - qitem.call.vars.fifo.epochs.enter ).to.be.below( 3 ) /* 1S */
+    expect( qitem.call.vars.fifo.state ).to.equal( "timeout" )
+    expect( mockinboundcall.newcallcount ).to.be.within( 45, 55 )
+    expect( reason ).to.equal( "timeout" )
+
+    /* ensure the calls are split between agents */
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1000@dummy.com" === v ).length ).to.be.within( 23, 28 )
+    expect( mockagentcall.agenturicalls.filter( ( v ) => "1001@dummy.com" === v ).length ).to.be.within( 23, 28 )
+
+  } )
+
+  it( "main enterprise queue 2 calls 1", async function() {
+
+    this.timeout( 2000 )
+    this.slow( 1500 )
+
+    /* create a global fifo object */
+    const globaloptions = {
+      "registrar": registrar.create(),
+      "srf": srf.create(),
+      "uactimeout": 10, /* mS */
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -281,15 +413,29 @@ describe( "interface enterprisescenarios.js", function() {
   } )
 
   it( "main enterprise queue 2 answer 1", async function() {
+
+    /*
+      This has been quite an important test. If an agent answers a call they should receive a different 
+      resting period to agents ignoring their phone.
+
+      We place 2 calls in the queue, the agents phones should then alternate between them (as tested in
+      'main enterprise queue 1 call agent declined').
+      When we answer one, then the remaining phone should continue to receive calls whilst the number of 
+      agents permit it.
+    */
+
     this.timeout( 2000 )
     this.slow( 1500 )
+
+    const answercallnumber = Math.floor( Math.random() * (23 - 18) + 18 )
 
     /* create a global fifo object */
     const globaloptions = {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 2000,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -304,16 +450,25 @@ describe( "interface enterprisescenarios.js", function() {
     globaloptions.registrar.addmockcontactinfo( "1000@dummy.com", { "contacts": [ "sip:1@d.c" ] } )
     globaloptions.registrar.addmockcontactinfo( "1001@dummy.com", { "contacts": [ "sip:1@e.c" ] } )
 
+    const ccc = {
+      "1000@dummy.com": { current: 0, total: 0 },
+      "1001@dummy.com": { current: 0, total: 0 }
+    }
+
     class mockagentcall {
 
-      static lastcreated
-      constructor( uri, parent, callbacks ) {
+
+      constructor( uri, parent, callbacks, toanswer ) {
         this.uri = uri
+        this.uuid = "_" + mockinboundcall.newoutboundcallcount
         this._em = new events.EventEmitter()
         this.parent = parent
         this._callbacks = callbacks
 
-        mockagentcall.lastcreated = this /* parent is mockinboundcall */
+        callbacks.early( this )
+
+        ccc[ this.uri ].current++
+        ccc[ this.uri ].total++
 
         /* types we can request */
         this.hangupcodes = {
@@ -321,10 +476,34 @@ describe( "interface enterprisescenarios.js", function() {
           "REQUEST_TIMEOUT": "REQUEST_TIMEOUT",
           "USER_GONE": "USER_GONE"
         }
+
+        if( toanswer ) {
+
+          setTimeout( () => {
+            this.answer()
+            setTimeout( () => {
+              this.hangup( { "reason": "NORMAL_CLEARING", "sip": 487 } )
+            }, 40 )
+          }, 20 )
+
+        } else {
+          setTimeout( () => {
+            this.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
+          }, globaloptions.uactimeout )
+        }
       }
 
       hangup( reason ) {
+        ccc[ this.uri ].current--
         this.hangup_cause = reason
+
+        this._em.emit( "call.destroyed", this )
+        globaloptions.em.emit( "call.destroyed", this )
+      }
+
+      async answer() {
+        const cookie = await this._callbacks.prebridge( this )
+        this._callbacks.confirm( this, cookie )
       }
 
       bond( parent ) {
@@ -336,7 +515,7 @@ describe( "interface enterprisescenarios.js", function() {
         return ( async () => {
           return {
             "uri": this.uri,
-            "ccc": 0 /* our tests ask this when we have finished */
+            "ccc": ccc[ this.uri ].current
           }
         } )()
       }
@@ -347,11 +526,6 @@ describe( "interface enterprisescenarios.js", function() {
 
       on( ev, cb ) {
         this._em.on( ev, cb )
-      }
-
-      async answer() {
-        const cookie = await this._callbacks.prebridge( this )
-        this._callbacks.confirm( this, cookie )
       }
     }
 
@@ -388,27 +562,13 @@ describe( "interface enterprisescenarios.js", function() {
         }
       }
 
-      _killcalls( options, callbacks, agentcall ) {
-        callbacks.early( agentcall )
-
-        setTimeout( () => {
-          if( this.adoptcalled ) return
-          /* these are emitted by callmanager - in this order */
-          agentcall.hangup( { "reason": "REQUEST_TIMEOUT", "sip": 408 } )
-          agentcall._em.emit( "call.destroyed", agentcall )
-          globaloptions.em.emit( "call.destroyed", agentcall )
-          
-        }, options.uactimeout )
-      }
-
       adopt( childcall ) {
-        this.adoptcalled = true
         this.child = childcall
       }
 
       newuac( options, callbacks ) {
         mockinboundcall.newoutboundcallcount++
-        this._killcalls( options, callbacks, new mockagentcall( options.entity.uri, this, callbacks ) )
+        new mockagentcall( options.entity.uri, this, callbacks, answercallnumber == mockinboundcall.newoutboundcallcount )
       }
     }
 
@@ -432,10 +592,6 @@ describe( "interface enterprisescenarios.js", function() {
 
     expect( mainfifo.getdomain( "dummy.com" ).getfifo( "fifoname" ).size ).to.equal( 2 )
 
-    setTimeout( () => {
-      mockagentcall.lastcreated.answer()
-    }, 200 )
-    
     const reason = await waitforfirst
     const reason2 = await waitforsecond
 
@@ -455,8 +611,11 @@ describe( "interface enterprisescenarios.js", function() {
     expect( reason ).to.equal( "confirm" )
     expect( reason2 ).to.equal( "timeout" )
 
-    expect( qitems[ 0 ].call.adoptcalled ).to.be.true
     expect( qitems[ 0 ].call.child.updatecalled ).to.be.true
+
+    expect( Math.abs( ccc[ "1000@dummy.com" ].total - ccc[ "1001@dummy.com" ].total ) ).to.be.above( 35 )
+    expect( ccc[ "1000@dummy.com" ].current ).to.equal( 0 )
+    expect( ccc[ "1001@dummy.com" ].current ).to.equal( 0 )
   } )
 
   it( "main enterprise queue 2 abandon 1", async function() {
@@ -468,7 +627,8 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -649,7 +809,8 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -785,7 +946,8 @@ describe( "interface enterprisescenarios.js", function() {
       "registrar": registrar.create(),
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
-      "agentlag": 10
+      "agentlag": 10,
+      "agentretry": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -904,4 +1066,7 @@ describe( "interface enterprisescenarios.js", function() {
     expect( mockinboundcall.lastoptions.callerid.name ).to.equal( "Queue" )
 
   } )
+
+  /* write tests to ensure REQUEST_TIMEOUT and other possible leave me alone hangup codes mean we move round the entrprise group */
+
 } )
