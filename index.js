@@ -9,16 +9,17 @@ Manage all of our fifos (queues), calls queueing and agents.
 class fifos {
 
   /**
-  @param { object } options
-  @param { object } options.srf - srf object
-  @param { object } [ options.em ] - event emmitter
-  @param { number } [ options.uactimeout = 60000 ] - default uactimeout (mS)
-  @param { number } [ options.agentlag = 30000 ] - duration after last call to retry next new call (mS)
+  * @param { object } options
+  * @param { object } options.srf - srf object
+  * @param { object } [ options.em ] - event emmitter
+  * @param { number } [ options.uactimeout = 60000 ] - default uactimeout (mS)
+  * @param { number } [ options.agentlag = 30000 ] - duration after last call to retry next new call (mS)
+  * @param { number } [ options.agentretry = 1000 ] - duration of the agent retry when the phone has returned smomething not normal
   */
   constructor( options ) {
 
     /**
-    @private
+    * @private
     */
     this._options = options
 
@@ -34,7 +35,7 @@ class fifos {
     this._options.em.on( "call.authed", this._onentitybusy.bind( this ) )
 
     /**
-    @private
+    * @private
     */
     this._domains = new Map()
 
@@ -47,19 +48,27 @@ class fifos {
       "callcount": 0
     }
     The key is the uri
-    @private
+    * @private
     */
     this._allagents = new Map()
 
     /**
-    @private
+    * @private
     */
     this._agentlag = 30000
     if( options && options.agentlag ) this._agentlag = options.agentlag
+
+
+    /**
+    * @private
+    */
+    this._agentretry = 1000
+    if( options && options.agentretry ) this._agentretry = options.agentretry
   }
 
   /**
-  Trigger a call from the next most important queue (based on oldest next)
+  * Trigger a call from the next most important queue (based on oldest next)
+  * @param { object } agentinfo
   */
   _callagents( agentinfo ) {
     const unorderedfifos = Array.from( agentinfo.fifos )
@@ -79,9 +88,9 @@ class fifos {
   }
 
   /**
-  Called by callmanager event emitter
-  @param { object } call - our call object
-  @private 
+  * Called by callmanager event emitter
+  * @param { object } call - our call object
+  * @private 
   */
   async _onentitymightbefree( call ) {
     const entity = await call.entity
@@ -90,14 +99,17 @@ class fifos {
       if( this._allagents.has( entity.uri ) ) {
         const agent = this._allagents.get( entity.uri )
 
-        let timeout = agent.agentlag
-        const reason = call.hangup_cause.reason
-        if ( "NORMAL_CLEARING" != reason && "BLIND_TRANSFER" != reason
-            && "ATTENDED_TRANSFER" != reason ) {
-          timeout = Math.min( agent.agentlag, 1000 )
+        /* If the last call ended normally, then we have agent lag, otherwise we have retry lag */
+        let timeout = this._agentretry 
+        const reason = call?.hangup_cause?.reason
+
+        if( [ "NORMAL_CLEARING", "BLIND_TRANSFER", "ATTENDED_TRANSFER" ].includes( reason ) ) {
+          timeout = agent.agentlag
         }
 
-        if( "available" == agent.state || "ringing" === agent.state || "busy" === agent.state ) {
+        timeout = Math.max( timeout, 10 )
+
+        if( [ "available", "early", "ringing", "busy" ].includes( agent.state ) ) {
           agent.state = "resting"
           setTimeout( () => {
             agent.state = "available"
@@ -108,6 +120,10 @@ class fifos {
     }
   }
 
+  /**
+   * If a device registers fresh, then we can trigger a retry
+   * @param { object } reginfo 
+   */
   async _onentitymightbeavailable( reginfo ) {
     if( this._allagents.has( reginfo.auth.uri ) && reginfo.initial ) {
       const agent = this._allagents.get( reginfo.auth.uri )
