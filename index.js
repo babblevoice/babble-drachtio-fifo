@@ -101,12 +101,13 @@ class fifos {
 
         /* If the last call ended normally, then we have agent lag, otherwise we have retry lag */
         let timeout = this._agentretry 
-        const reason = call?.hangup_cause?.reason
 
-        if( [ "NORMAL_CLEARING", "BLIND_TRANSFER", "ATTENDED_TRANSFER" ].includes( reason ) ) {
+        /* this means has the agents call ever been established */
+        if( call.established ) {
           timeout = agent.agentlag
         }
 
+        /* make sure we have some timeout - not immediate */
         timeout = Math.max( timeout, 10 )
 
         if( [ "available", "early", "ringing", "busy" ].includes( agent.state ) ) {
