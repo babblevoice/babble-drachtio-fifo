@@ -5,6 +5,6 @@
     "moduleResolution": "node",
     "checkJs": true
   },
-  "include": [ "index.js", "babble/*.js", "babble/apps/*.js" ],
+  "include": [ "index.js", "lib/*.js", "test/interface/*.js", "test/unit/*.js", "test/mock/*.js" ],
   "exclude": [ "node_modules" ]
 }
