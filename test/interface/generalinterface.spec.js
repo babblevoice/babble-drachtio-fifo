@@ -35,8 +35,10 @@ describe( "interface index.js", function() {
 
     mainfifo.addagent( agentinfo )
 
+    // @ts-ignore
     expect( mainfifo._allagents.size ).to.equal( 1 )
 
+    // @ts-ignore
     const privateagentinfo = mainfifo._allagents.get( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
@@ -59,8 +61,10 @@ describe( "interface index.js", function() {
       "agents": [ "1000@dummy.com", "1001@dummy.com" ]
     } )
 
+    // @ts-ignore
     expect( mainfifo._allagents.size ).to.equal( 2 )
 
+    // @ts-ignore
     const privateagentinfo = mainfifo._allagents.get( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
@@ -89,18 +93,22 @@ describe( "interface index.js", function() {
       "agent": "1000@blah.com"
     } )
 
+    // @ts-ignore
     expect( mainfifo._allagents.size ).to.equal( 3 )
 
+    // @ts-ignore
     let privateagentinfo = mainfifo._allagents.get( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
     expect( privateagentinfo.fifos.size ).to.equal( 1 ) /* a member of one fifo */
 
+    // @ts-ignore
     privateagentinfo = mainfifo._allagents.get( "1001@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1001@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
     expect( privateagentinfo.fifos.size ).to.equal( 1 ) /* a member of one fifo */
 
+    // @ts-ignore
     privateagentinfo = mainfifo._allagents.get( "1000@blah.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1000@blah.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
@@ -129,6 +137,7 @@ describe( "interface index.js", function() {
       "agent": "1000@blah.com"
     } )
 
+    // @ts-ignore
     expect( mainfifo._allagents.size ).to.equal( 3 )
 
     mainfifo.deleteagent( { 
@@ -137,16 +146,20 @@ describe( "interface index.js", function() {
       "agent": "1001@dummy.com"
     } )
 
+    // @ts-ignore
     expect( mainfifo._allagents.size ).to.equal( 2 )
 
+    // @ts-ignore
     let privateagentinfo = mainfifo._allagents.get( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1000@dummy.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
     expect( privateagentinfo.fifos.size ).to.equal( 1 ) /* a member of one fifo */
 
+    // @ts-ignore
     privateagentinfo = mainfifo._allagents.get( "1001@dummy.com" )
     expect( privateagentinfo ).to.be.undefined
 
+    // @ts-ignore
     privateagentinfo = mainfifo._allagents.get( "1000@blah.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "uri" ).to.equal( "1000@blah.com" )
     expect( privateagentinfo ).to.be.a( "object" ).to.have.property( "state" ).to.equal( "available" )
@@ -168,6 +181,7 @@ describe( "interface index.js", function() {
       "agents": [ "1000@dummy.com", "1001@dummy.com", "1002@dummy.com" ]
     } )
 
+    // @ts-ignore
     expect( mainfifo._allagents.size ).to.equal( 3 )
 
     /* sync rather than add */
@@ -177,6 +191,7 @@ describe( "interface index.js", function() {
       "agents": [ "1000@dummy.com", "1005@dummy.com" ]
     } )
 
+    // @ts-ignore
     expect( mainfifo._allagents.size ).to.equal( 2 )
 
   } )

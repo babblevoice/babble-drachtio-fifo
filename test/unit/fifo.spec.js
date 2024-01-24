@@ -32,15 +32,21 @@ describe( "unit fifo.js", function() {
     f.queue( { call } )
 
     /* Default ringall, priority 5 (zero index based) */
+    // @ts-ignore
     expect( f._fifos[ 4 ] ).to.be.a( "array" ).to.have.lengthOf( 1 )
+    // @ts-ignore
     expect( f._fifos[ 3 ] ).to.be.a( "array" ).to.have.lengthOf( 0 )
+    // @ts-ignore
     expect( f._callcount ).to.equal( 1 )
 
+    // @ts-ignore
     expect( f._calls.has( call.uuid ) ).to.be.true
 
     call._em.emit( "call.destroyed", call )
 
+    // @ts-ignore
     expect( f._fifos[ 4 ] ).to.be.a( "array" ).to.have.lengthOf( 0 )
+    // @ts-ignore
     expect( f._callcount ).to.equal( 0 )
   } )
 
@@ -97,6 +103,7 @@ describe( "unit fifo.js", function() {
 
     f.addagent( "1000@dummy.com", agentinfo )
 
+    // @ts-ignore
     expect( f._agents ).to.have.property( "1000@dummy.com" )
     expect( agentinfo.fifos.size ).to.equal( 1 )
   } )
@@ -126,7 +133,9 @@ describe( "unit fifo.js", function() {
 
     expect( agentinfo[ 0 ].fifos.size ).to.equal( 0 )
 
+    // @ts-ignore
     expect( f._agents ).to.not.have.property( "1000@dummy.com" )
+    // @ts-ignore
     expect( f._agents ).to.have.property( "1001@dummy.com" )
   } )
 
@@ -292,6 +301,7 @@ describe( "unit fifo.js", function() {
       "off": ( /*e, cb*/ ) => {},
       "emit": ( /*ev*/ ) => {},
       "vars": {},
+      // @ts-ignore
       "newuac": function ( options, callbacks ) {
         newcallcount++
 
@@ -311,6 +321,7 @@ describe( "unit fifo.js", function() {
               mockagenti.state = "available"
             }
             
+            // @ts-ignore
             f._callagents()
           }, globaloptions.agentlag )
           
@@ -319,6 +330,7 @@ describe( "unit fifo.js", function() {
     }
 
     const waiting = f.queue( { "call": mockinboundcall, "timeout": 1 } )
+    // @ts-ignore
     f._callagents() /* this is handled in our domain object - so this is not needed in real implimentation */
     const reason = await waiting
     /*
