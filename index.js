@@ -67,6 +67,14 @@ class fifos {
   }
 
   /**
+   * Configure the default lag
+   * @param { number } lag - number but min 1000
+   */
+  set agentlag( lag ) {
+    this._agentlag = Math.max( lag, 1000 )
+  }
+
+  /**
   * Trigger a call from the next most important queue (based on oldest next)
   * @param { object } agentinfo
   */
