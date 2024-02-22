@@ -12,7 +12,7 @@ class fifos {
   * @param { object } options
   * @param { object } options.srf - srf object
   * @param { object } [ options.em ] - event emmitter
-  * @param { number } [ options.uactimeout = 60000 ] - default uactimeout (mS)
+  * @param { number } [ options.uactimeout = 20000 ] - default uactimeout (mS)
   * @param { number } [ options.agentlag = 30000 ] - duration after last call to retry next new call (mS)
   * @param { number } [ options.agentretry = 1000 ] - duration of the agent retry when the phone has returned smomething not normal
   */
