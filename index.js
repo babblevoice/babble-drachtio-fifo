@@ -324,11 +324,11 @@ class fifos {
   }
 
   /**
-  Get a call by callerid
+  Get a queuedcall by uuid
   */
-  getcallbycallerid( options ) {
+  getcallbyuuid( options ) {
     const d = this.getdomain( options.domain )
-    return d.getcallbycallerid( options )
+    return d.getcallbyuuid( options )
   }
 
   /**
