@@ -332,6 +332,14 @@ class fifos {
   }
 
   /**
+  Get a queuedcall by callerid
+  */
+  getcallbycallerid( options ) {
+    const d = this.getdomain( options.domain )
+    return d.getcallbycallerid( options )
+  }
+
+  /**
   Shortcut to create fifos.
   */
   static create( options ) {
