@@ -3,6 +3,12 @@ const events = require( "events" )
 
 const domain = require( "./lib/domain.js" )
 
+const defaultoptions = {
+  "uactimeout": 60000,
+  "agentlag": 30000,
+  "agentretry": 1000
+}
+
 /**
 Manage all of our fifos (queues), calls queueing and agents.
 */
@@ -21,7 +27,7 @@ class fifos {
     /**
     * @private
     */
-    this._options = options
+    this._options = this._options = { ...defaultoptions, ...options }
 
     if( !this._options.em ) {
       this._options.em = new events.EventEmitter()
