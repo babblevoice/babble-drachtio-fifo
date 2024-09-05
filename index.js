@@ -21,6 +21,7 @@ class fifos {
   * @param { number } [ options.uactimeout = 60000 ] - default uactimeout (mS)
   * @param { number } [ options.agentlag = 30000 ] - duration after last call to retry next new call (mS)
   * @param { number } [ options.agentretry = 1000 ] - duration of the agent retry when the phone has returned smomething not normal
+  * @param { number } [ options.minlag = 100 ] - minimum lag between retries
   */
   constructor( options ) {
 
@@ -31,6 +32,7 @@ class fifos {
 
     if( !this._options.em ) {
       this._options.em = new events.EventEmitter()
+      options.em = this._options.em
     }
 
     this._options.em.on( "call.destroyed", this._onentitymightbefree.bind( this ) )
@@ -70,6 +72,9 @@ class fifos {
     */
     this._agentretry = 1000
     if( options && options.agentretry ) this._agentretry = options.agentretry
+
+    this._minagentlag = 100
+    if( options && options.minlag ) this._minagentlag = options.minlag
   }
 
   /**
@@ -108,30 +113,31 @@ class fifos {
   */
   async _onentitymightbefree( call ) {
     const entity = await call.entity
-    if( entity && 0 === entity.ccc ) {
-      /* We know who it is and they have no other calls */
-      if( this._allagents.has( entity.uri ) ) {
-        const agent = this._allagents.get( entity.uri )
+    if( !entity ) return
+    if( 0 !== entity.ccc ) return
 
-        /* If the last call ended normally, then we have agent lag, otherwise we have retry lag */
-        let timeout = this._agentretry 
+    /* We know who it is and they have no other calls */
+    if( !this._allagents.has( entity.uri ) ) return
 
-        /* this means has the agents call ever been established */
-        if( call.established ) {
-          timeout = agent.agentlag
-        }
+    const agent = this._allagents.get( entity.uri )
 
-        /* make sure we have some timeout - not immediate */
-        timeout = Math.max( timeout, 10 )
+    /* If the last call ended normally, then we have agent lag, otherwise we have retry lag */
+    let timeout = this._agentretry 
 
-        if( [ "available", "early", "ringing", "busy" ].includes( agent.state ) ) {
-          agent.state = "resting"
-          setTimeout( () => {
-            agent.state = "available"
-            this._callagents( agent )
-          }, timeout )
-        }
-      }
+    /* this means has the agents call ever been established */
+    if( call.established ) {
+      timeout = agent.agentlag
+    }
+
+    /* make sure we have some timeout - not immediate */
+    timeout = Math.max( timeout, this._minagentlag )
+
+    if( [ "available", "ringing", "busy" ].includes( agent.state ) ) {
+      agent.state = "resting"
+      setTimeout( () => {
+        agent.state = "available"
+        this._callagents( agent )
+      }, timeout )
     }
   }
 
@@ -140,9 +146,10 @@ class fifos {
    * @param { object } reginfo 
    */
   async _onentitymightbeavailable( reginfo ) {
-    if( this._allagents.has( reginfo.auth.uri ) && reginfo.initial ) {
+    if( this._allagents.has( reginfo.auth.uri ) ) {
       const agent = this._allagents.get( reginfo.auth.uri )
-      agent.state = "available"
+      if( !agent ) return
+      if( agent.state !== "available" ) return
       this._callagents( agent )
     }
   }
