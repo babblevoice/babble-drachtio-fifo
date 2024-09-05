@@ -18,7 +18,8 @@ describe( "interface enterprisescenarios.js", function() {
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10,
-      "agentretry": 10
+      "agentretry": 10,
+      "minlag": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -45,6 +46,10 @@ describe( "interface enterprisescenarios.js", function() {
         this.hangupcodes = {
           USER_GONE: "USER_GONE"
         }
+
+        this.establish = false
+        this.state = { establishing: false }
+        this.vars = {}
       }
 
       hangup( reason ) {
@@ -145,7 +150,8 @@ describe( "interface enterprisescenarios.js", function() {
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10,
-      "agentretry": 10
+      "agentretry": 10,
+      "minlag": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -172,6 +178,10 @@ describe( "interface enterprisescenarios.js", function() {
         this.hangupcodes = {
           USER_GONE: "USER_GONE"
         }
+
+        this.establish = false
+        this.state = { establishing: false }
+        this.vars = {}
       }
 
       hangup( reason ) {
@@ -272,7 +282,8 @@ describe( "interface enterprisescenarios.js", function() {
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10,
-      "agentretry": 10
+      "agentretry": 10,
+      "minlag": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -299,6 +310,10 @@ describe( "interface enterprisescenarios.js", function() {
         this.hangupcodes = {
           USER_GONE: "USER_GONE"
         }
+
+        this.establish = false
+        this.state = { establishing: false }
+        this.vars = {}
       }
 
       hangup( reason ) {
@@ -422,7 +437,8 @@ describe( "interface enterprisescenarios.js", function() {
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10,
-      "agentretry": 10
+      "agentretry": 10,
+      "minlag": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -454,6 +470,10 @@ describe( "interface enterprisescenarios.js", function() {
           "REQUEST_TIMEOUT": "REQUEST_TIMEOUT",
           "USER_GONE": "USER_GONE"
         }
+
+        this.establish = false
+        this.state = { establishing: false }
+        this.vars = {}
       }
 
       hangup( reason ) {
@@ -604,7 +624,8 @@ describe( "interface enterprisescenarios.js", function() {
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10,
-      "agentretry": 10
+      "agentretry": 10,
+      "minlag": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -631,6 +652,10 @@ describe( "interface enterprisescenarios.js", function() {
           REQUEST_TIMEOUT: "REQUEST_TIMEOUT",
           USER_GONE: "USER_GONE"
         }
+
+        this.establish = false
+        this.state = { establishing: false }
+        this.vars = {}
       }
 
       hangup( reason ) {
@@ -741,7 +766,8 @@ describe( "interface enterprisescenarios.js", function() {
       "srf": srf.create(),
       "uactimeout": 10, /* mS */
       "agentlag": 10,
-      "agentretry": 10
+      "agentretry": 10,
+      "minlag": 10
     }
 
     const mainfifo = fifo.create( globaloptions )
@@ -767,6 +793,10 @@ describe( "interface enterprisescenarios.js", function() {
         this.hangupcodes = {
           REQUEST_TIMEOUT: "REQUEST_TIMEOUT"
         }
+
+        this.establish = false
+        this.state = { establishing: false }
+        this.vars = {}
       }
 
       get entity() {

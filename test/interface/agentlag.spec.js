@@ -30,7 +30,8 @@ describe( "interface agentlag.js", function() {
         "registrar": registrar.create(),
         "srf": srf.create(),
         "agentretry": 10,
-        "uactimeout": 10 /* mS */
+        "uactimeout": 10, /* mS */
+        "minlag": 10
       }
   
       const mainfifo = fifo.create( globaloptions )
@@ -57,6 +58,10 @@ describe( "interface agentlag.js", function() {
           this.hangupcodes = {
             REQUEST_TIMEOUT: "REQUEST_TIMEOUT"
           }
+
+          this.establish = false
+          this.state = { establishing: false }
+          this.vars = {}
         }
   
         hangup() {}
@@ -108,7 +113,7 @@ describe( "interface agentlag.js", function() {
             /* these are emitted by callmanager - in this order */
             agentcall._em.emit( "call.destroyed", agentcall )
             globaloptions.em.emit( "call.destroyed", agentcall )
-            
+
           }, globaloptions.uactimeout )
         }
   
@@ -150,7 +155,8 @@ describe( "interface agentlag.js", function() {
         "registrar": registrar.create(),
         "srf": srf.create(),
         "agentretry": 10,
-        "uactimeout": 10 /* mS */
+        "uactimeout": 10, /* mS */
+        "minlag": 10
       }
   
       const mainfifo = fifo.create( globaloptions )
@@ -179,6 +185,10 @@ describe( "interface agentlag.js", function() {
           this.hangupcodes = {
             REQUEST_TIMEOUT: "REQUEST_TIMEOUT"
           }
+
+          this.establish = false
+          this.state = { establishing: false }
+          this.vars = {}
         }
         get entity() {
           return ( async () => {
@@ -311,7 +321,8 @@ describe( "interface agentlag.js", function() {
         "srf": srf.create(),
         "uactimeout": 10, /* mS */
         "agentlag": 2000,
-        "agentretry": 10
+        "agentretry": 10,
+        "minlag": 10
       }
   
       const mainfifo = fifo.create( globaloptions )
@@ -340,6 +351,10 @@ describe( "interface agentlag.js", function() {
           this._em = new events.EventEmitter()
           this.parent = parent
           this._callbacks = callbacks
+
+          this.establish = false
+          this.state = { establishing: false }
+          this.vars = {}
   
           callbacks.early( this )
   
@@ -521,7 +536,8 @@ describe( "interface agentlag.js", function() {
         "srf": srf.create(),
         "uactimeout": 10, /* mS */
         "agentlag": 1000,
-        "agentretry": 10
+        "agentretry": 10,
+        "minlag": 10
       }
   
       const mainfifo = fifo.create( globaloptions )
@@ -550,6 +566,10 @@ describe( "interface agentlag.js", function() {
           this._em = new events.EventEmitter()
           this.parent = parent
           this._callbacks = callbacks
+
+          this.establish = false
+          this.state = { establishing: false }
+          this.vars = {}
 
           callbacks.early( this )
 
