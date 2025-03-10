@@ -286,6 +286,7 @@ class fifos {
       } )
     }
 
+    /* emit a stats event */
     f.stats()
   }
 
