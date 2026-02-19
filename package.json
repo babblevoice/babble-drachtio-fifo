@@ -4,7 +4,7 @@
   "description": "A call queue (fifo)",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --recursive --check-leaks",
+    "test": "./node_modules/mocha/bin/_mocha --recursive --check-leaks",
     "docs": "jsdoc -c jsdoc.conf.json"
   },
   "author": "Nick Knight",
@@ -17,8 +17,10 @@
     "test": "test"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.3.0",
     "chai": "^4.3.4",
-    "mocha": "^9.1.3"
+    "mocha": "^11.7.5"
   },
   "repository": {
     "type": "git",
