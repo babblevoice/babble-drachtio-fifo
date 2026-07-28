@@ -1,5 +1,6 @@
 
 const expect = require( "chai" ).expect
+const events = require( "events" )
 const fifo = require( "../../index.js" )
 
 describe( "interface index.js", function() {
@@ -194,5 +195,96 @@ describe( "interface index.js", function() {
     // @ts-ignore
     expect( mainfifo._allagents.size ).to.equal( 2 )
 
+  } )
+
+  it( "emits fifo.agent.add when a new agent joins a fifo", async function() {
+
+    const em = new events.EventEmitter()
+    const options = { "srf": {}, "agentlag": 10, em }
+    const mainfifo = fifo.create( options )
+
+    const seen = []
+    em.on( "fifo.agent.add", ( e ) => seen.push( e ) )
+
+    mainfifo.addagent( { "name": "testfifo", "domain": "dummy.com", "agent": "1000@dummy.com" } )
+
+    expect( seen ).to.have.lengthOf( 1 )
+    expect( seen[ 0 ] ).to.deep.equal( { "name": "testfifo", "domain": "dummy.com", "agent": "1000@dummy.com" } )
+  } )
+
+  it( "does not emit fifo.agent.add when the agent is already a member", async function() {
+
+    const em = new events.EventEmitter()
+    const options = { "srf": {}, "agentlag": 10, em }
+    const mainfifo = fifo.create( options )
+
+    const agentoptions = { "name": "testfifo", "domain": "dummy.com", "agent": "1000@dummy.com" }
+    mainfifo.addagent( agentoptions )
+
+    const seen = []
+    em.on( "fifo.agent.add", ( e ) => seen.push( e ) )
+
+    mainfifo.addagent( agentoptions )
+
+    expect( seen ).to.have.lengthOf( 0 )
+  } )
+
+  it( "emits fifo.agent.remove when an agent leaves a fifo", async function() {
+
+    const em = new events.EventEmitter()
+    const options = { "srf": {}, "agentlag": 10, em }
+    const mainfifo = fifo.create( options )
+
+    mainfifo.addagent( { "name": "testfifo", "domain": "dummy.com", "agent": "1000@dummy.com" } )
+
+    const seen = []
+    em.on( "fifo.agent.remove", ( e ) => seen.push( e ) )
+
+    mainfifo.deleteagent( { "name": "testfifo", "domain": "dummy.com", "agent": "1000@dummy.com" } )
+
+    expect( seen ).to.have.lengthOf( 1 )
+    expect( seen[ 0 ] ).to.deep.equal( { "name": "testfifo", "domain": "dummy.com", "agent": "1000@dummy.com" } )
+  } )
+
+  it( "does not emit fifo.agent.remove when the agent was never a member", async function() {
+
+    const em = new events.EventEmitter()
+    const options = { "srf": {}, "agentlag": 10, em }
+    const mainfifo = fifo.create( options )
+
+    const seen = []
+    em.on( "fifo.agent.remove", ( e ) => seen.push( e ) )
+
+    mainfifo.deleteagent( { "name": "testfifo", "domain": "dummy.com", "agent": "9999@dummy.com" } )
+
+    expect( seen ).to.have.lengthOf( 0 )
+  } )
+
+  it( "emits add/remove deltas when syncing the agent list via agents()", async function() {
+
+    const em = new events.EventEmitter()
+    const options = { "srf": {}, "agentlag": 10, em }
+    const mainfifo = fifo.create( options )
+
+    mainfifo.addagents( {
+      "name": "fifotest",
+      "domain": "dummy.com",
+      "agents": [ "1000@dummy.com", "1001@dummy.com", "1002@dummy.com" ]
+    } )
+
+    const added = []
+    const removed = []
+    em.on( "fifo.agent.add", ( e ) => added.push( e.agent ) )
+    em.on( "fifo.agent.remove", ( e ) => removed.push( e.agent ) )
+
+    /* 1000 unchanged, 1005 new, 1001 + 1002 dropped */
+    mainfifo.agents( {
+      "name": "fifotest",
+      "domain": "dummy.com",
+      "agents": [ "1000@dummy.com", "1005@dummy.com" ]
+    } )
+
+    expect( added ).to.deep.equal( [ "1005@dummy.com" ] )
+    expect( removed.sort() ).to.deep.equal( [ "1001@dummy.com", "1002@dummy.com" ] )
   } )
 } )
