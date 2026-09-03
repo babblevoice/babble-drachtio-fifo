@@ -6,7 +6,7 @@ const registrar = require( "../mock/registrar.js" )
 const srf = require( "../mock/srf.js" )
 
 /*
-  SIP-XXX: an enterprise queue dials its agent legs with "orphan": true, so a
+  SIP-227: an enterprise queue dials its agent legs with "orphan": true, so a
   ringing agent leg is not a child of the caller. When an intercept picks the
   caller out of the queue, nothing in the call graph links the two - so the
   surplus agent legs have to be cleared by the fifo itself. If they are not,
