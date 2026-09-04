@@ -130,15 +130,24 @@ describe( "interface pickrace.js", function() {
     }
 
     /**
-     * Drive the agent answering, the way callmanager does: prebridge once the
-     * dialog is up, then confirm once the bridge is made.
+     * Drive the agent answering in callmanager's order. #setdialog marks the
+     * leg established (and establishing) and only then does #onnewuacsuccess
+     * run prebridge, bridge and confirm - so a leg is established for the
+     * whole of the window this suite is about, and there is no state where a
+     * leg is half way through answering with established still false.
+     *
+     * A leg that we have already hung up can still arrive here: a CANCEL and
+     * the phone's 200 cross on the wire and the 200 wins. That is how an
+     * agent ends up answering a call we thought we had cleared.
      * @param { object } leg
      */
     const answerleg = async ( leg ) => {
+      /* the 200 won the race, so whatever CANCEL we sent did not take - the
+         leg really is up and the agent really is listening */
+      leg.agentcall.hangup_cause = undefined
       leg.agentcall.state.establishing = true
-      const cookie = await leg.callbacks.prebridge( leg.agentcall )
-      leg.agentcall.state.establishing = false
       leg.agentcall.established = true
+      const cookie = await leg.callbacks.prebridge( leg.agentcall )
       if( leg.callbacks.confirm ) await leg.callbacks.confirm( leg.agentcall, cookie )
       return cookie
     }
@@ -159,19 +168,14 @@ describe( "interface pickrace.js", function() {
     const ringing = h.inflight()
     expect( ringing.length ).to.be.above( 0 )
 
-    /* the agent's phone has sent its 200 - this is the window the 20/08 call
-       landed in, 1.08s between the pick and the agent's media arriving */
-    for( const leg of ringing ) leg.agentcall.state.establishing = true
-
     /* an intercept takes the caller out of the queue */
     h.callers[ 0 ].emit( "call.pick", h.callers[ 0 ] )
     await new Promise( r => setTimeout( r, 10 ) )
 
-    /* the agent finishes answering a moment later */
-    for( const leg of ringing ) {
-      if( undefined !== leg.agentcall.hangup_cause ) continue
-      await h.answerleg( leg )
-    }
+    /* the agent's 200 crossed our CANCEL and answers anyway - this is the
+       window the 20/08 call landed in, 1.08s between the pick and the
+       agent's media arriving */
+    for( const leg of ringing ) await h.answerleg( leg )
 
     for( const leg of ringing ) {
       expect( leg.agentcall.bondedto, "agent bonded to a caller already picked" )
@@ -190,16 +194,11 @@ describe( "interface pickrace.js", function() {
     const ringing = h.inflight()
     expect( ringing.length ).to.be.above( 0 )
 
-    /* mid-answer at the moment of the pick, so the leg survives it */
-    for( const leg of ringing ) leg.agentcall.state.establishing = true
-
     h.callers[ 0 ].emit( "call.pick", h.callers[ 0 ] )
     await new Promise( r => setTimeout( r, 10 ) )
 
-    for( const leg of ringing ) {
-      if( undefined !== leg.agentcall.hangup_cause ) continue
-      await h.answerleg( leg )
-    }
+    /* the 200 crossed our CANCEL, so the agent answers regardless */
+    for( const leg of ringing ) await h.answerleg( leg )
 
     /* an agent with no caller to bond to must be released, not left answered
        and bonded to nobody - that is what the agent hears as silence */
@@ -229,28 +228,6 @@ describe( "interface pickrace.js", function() {
     }
   } )
 
-  it( "clears an agent leg that is mid-answer when the caller is picked", async function() {
-
-    this.timeout( 3000 )
-    this.slow( 2000 )
-
-    const h = harness( 1 )
-    await new Promise( r => setTimeout( r, 60 ) )
-
-    const ringing = h.inflight()
-    expect( ringing.length ).to.be.above( 0 )
-
-    /* the phone has sent its 200 but we have not finished setting up */
-    for( const leg of ringing ) leg.agentcall.state.establishing = true
-
-    h.callers[ 0 ].emit( "call.pick", h.callers[ 0 ] )
-    await new Promise( r => setTimeout( r, 20 ) )
-
-    for( const leg of ringing ) {
-      expect( leg.agentcall.hangup_cause ).to.equal( "PICKED_OFF" )
-    }
-  } )
-
   it( "clears only the surplus agent legs when another caller is still waiting", async function() {
 
     this.timeout( 3000 )
@@ -269,6 +246,57 @@ describe( "interface pickrace.js", function() {
 
     /* one caller remains, so exactly one leg should still be ringing for them */
     expect( stillringing.length ).to.equal( 1 )
+  } )
+
+
+  /*
+    The crossed call as it actually happens (SIP-227, ticket 47995).
+
+    _enterpriseallprebridge pops the caller out of the queue and bonds it to
+    the answering agent, but bond() only records a media-node affinity - it
+    sets no parent/child, and marks nothing on the caller. So for the window
+    between prebridge and the bridge completing, the caller is gone from the
+    queue yet still looks entirely unclaimed to everybody else.
+
+    An intercept landing in that window calls pick() on the caller. Our _pick
+    then finds nothing in _calls, bails at "if ( !qc ) return" and so never
+    clears the agent leg - which is still bonded and about to be mixed. The
+    caller ends up mixed with two legs: the intercepting user and the agent.
+    That is the double "mix" on one caller channel in the 20/08 and 01/09
+    traces.
+  */
+  it( "releases an agent that claimed a caller an intercept then picked", async function() {
+
+    this.timeout( 3000 )
+    this.slow( 2000 )
+
+    const h = harness( 1 )
+    await new Promise( r => setTimeout( r, 60 ) )
+
+    const leg = h.inflight()[ 0 ]
+    expect( leg ).to.not.equal( undefined )
+
+    /* the agent answers - prebridge pops the caller and bonds it to them */
+    leg.agentcall.state.establishing = true
+    const cookie = await leg.callbacks.prebridge( leg.agentcall )
+    expect( leg.agentcall.bondedto, "prebridge did not claim the caller" )
+      .to.equal( h.callers[ 0 ] )
+
+    /* an intercept picks the same caller before the bridge is made */
+    h.callers[ 0 ].emit( "call.pick", h.callers[ 0 ] )
+    await new Promise( r => setTimeout( r, 20 ) )
+
+    /* the agent leg is bonded to a caller who has just been taken, so it has
+       to be given up - otherwise confirm mixes it in on top of the picker */
+    expect( leg.agentcall.hangup_cause,
+      "agent left bonded to a caller an intercept took - crossed call" )
+      .to.not.equal( undefined )
+
+    /* and it must not go on to bridge */
+    if( leg.callbacks.confirm ) {
+      leg.agentcall.established = true
+      await leg.callbacks.confirm( leg.agentcall, cookie )
+    }
   } )
 
 } )
