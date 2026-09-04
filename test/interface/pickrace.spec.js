@@ -92,6 +92,7 @@ describe( "interface pickrace.js", function() {
         this.uuid = "caller" + mockinboundcall.inboundcallcount
         mockinboundcall.inboundcallcount++
         this._em = new events.EventEmitter()
+        this.adopted = []
         this.vars = {}
         this.destroyed = false
         this.hangupcodes = {
@@ -105,7 +106,8 @@ describe( "interface pickrace.js", function() {
       on( e, cb ) { this._em.on( e, cb ) }
       off( e, cb ) { this._em.off( e, cb ) }
       emit( e, v ) { this._em.emit( e, v ) }
-      adopt() {}
+      /* this is the mix - who we end up hearing */
+      adopt( other ) { this.adopted.push( other ) }
       update() {}
 
       /* ring the agent - it answers only when the test calls answerleg() */
@@ -292,11 +294,13 @@ describe( "interface pickrace.js", function() {
       "agent left bonded to a caller an intercept took - crossed call" )
       .to.not.equal( undefined )
 
-    /* and it must not go on to bridge */
-    if( leg.callbacks.confirm ) {
-      leg.agentcall.established = true
-      await leg.callbacks.confirm( leg.agentcall, cookie )
-    }
+    /* our hangup may not have taken by the time callmanager runs confirm, so
+       confirm has to refuse on its own account - the caller must never be
+       mixed with this agent on top of the picker */
+    if( leg.callbacks.confirm ) await leg.callbacks.confirm( leg.agentcall, cookie )
+
+    expect( h.callers[ 0 ].adopted, "agent mixed in on top of the picker" )
+      .to.have.length( 0 )
   } )
 
 } )
