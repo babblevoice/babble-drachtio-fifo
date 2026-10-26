@@ -46,7 +46,7 @@ In these 2 scenarios both queues
 docker run --rm -it \
   -v "$(pwd):/app:z" \
   -w /app \
-  node:25-alpine sh -lc '
+  node:26-alpine sh -lc '
     npm test
   '
 ```
@@ -56,7 +56,7 @@ docker run --rm -it \
 docker run --rm -it \
   -v "$(pwd):/app:z" \
   -w /app \
-  node:25-alpine sh -lc '
+  node:26-alpine sh -lc '
     ./node_modules/mocha/bin/_mocha --recursive --check-leaks --grep "main ringall queue 1 call"
   '
 ```
@@ -69,7 +69,7 @@ docker run --rm -it \
 docker run --rm -it \
   -v "$(pwd):/app:z" \
   -w /app \
-  node:25-alpine sh -lc '
+  node:26-alpine sh -lc '
     npm i --save-dev @types/mocha
   '
 ```
@@ -80,7 +80,7 @@ docker run --rm -it \
 docker run --rm -it \
   -v "$(pwd):/app:z" \
   -w /app \
-  node:25-alpine sh -lc '
+  node:26-alpine sh -lc '
     npm update
   '
 ```
